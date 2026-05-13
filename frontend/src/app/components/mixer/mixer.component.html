@@ -1,0 +1,166 @@
+<div class="mixer-container">
+  <header class="mixer-header-mini">
+    <button routerLink="/dashboard" class="btn-back-small">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <h1 class="song-name-mini">{{ song()?.name }}</h1>
+  </header>
+
+  <section class="chord-viewer-row" *ngIf="isLoaded()">
+    <div class="chord-progression">
+      <div class="chord-item previous" [class.visible]="previousChord()">
+        {{ previousChord() }}
+      </div>
+      <div class="chord-item active">
+        <span class="value">{{ currentChord() }}</span>
+      </div>
+      <div class="chord-item next" [class.visible]="nextChord()">
+        {{ nextChord() }}
+      </div>
+    </div>
+  </section>
+
+  @if (song()?.status === 'processing') {
+    <div class="processing-overlay">
+      <div class="loader"></div>
+      <p>{{ progressStatus() }}</p>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressValue()"></div>
+      </div>
+    </div>
+  }
+
+  <main class="mixer-main" [class.hidden]="song()?.status === 'processing' || !isLoaded()">
+    <!-- Top Section: Compact Tracks -->
+    <section class="tracks-top">
+      <div class="tracks-grid">
+        @for (track of tracks(); track track.type; let i = $index) {
+          <div
+            class="track-item"
+            [class.is-soloed]="track.isSolo"
+            [class.is-dimmed]="tracks().some(t => t.isSolo) && !track.isSolo"
+            [class.is-muted]="track.isMuted"
+            (dblclick)="resetVolume(track)"
+          >
+            <div class="track-main-row">
+              <div class="track-header">
+                <span class="track-icon" [innerHTML]="getTrackIcon(track.type)"></span>
+                <span class="track-name">{{ track.type }}</span>
+              </div>
+              
+              <div class="track-waveform-mini">
+                <canvas #trackCanvas class="track-canvas"></canvas>
+              </div>
+
+            </div>
+
+            <div class="track-actions">
+              <div class="solo-mute-group">
+                <button
+                  class="btn-action btn-solo"
+                  [class.active]="track.isSolo"
+                  (click)="toggleSolo(track)"
+                  title="SOLO: Isolate this instrument"
+                >S</button>
+                <button
+                  class="btn-action btn-mute"
+                  [class.active]="track.isMuted"
+                  (click)="toggleMute(track)"
+                  title="MUTE: Silence this instrument"
+                >M</button>
+              </div>
+
+              <div class="volume-slider-horizontal" [style.--vol-percent.%]="getVolumePercent(track)">
+                <div class="volume-bar-bg">
+                  <div class="volume-fill"></div>
+                </div>
+                <input type="range" min="0" max="100" step="1" [value]="getVolumeLevel(track)" (input)="onVolumeChange($event, track)" class="volume-input" />
+                <span class="volume-tooltip">{{ getVolumeLevel(track) }}</span>
+              </div>
+
+              <div class="pan-container" (click)="$event.stopPropagation()">
+                <button
+                  class="btn-action btn-pan"
+                  [class.active]="track.pan !== 0"
+                  (click)="togglePanModal(track.type, $event)"
+                  title="PAN: Stereo positioning (L/R)"
+                >P</button>
+                @if (activePanTrack() === track.type) {
+                  <div class="pan-tooltip">
+                    <div class="pan-mini">
+                      <input type="range" min="-1" max="1" step="0.1" [value]="track.pan" (input)="onPanChange($event, track)" class="pan-input" />
+                      <span class="pan-label">{{ getPanLabel(track.pan) }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Bottom Section: Player -->
+    <footer class="player-bottom">
+      <div class="waveform-outer">
+        <div class="waveform-main-container" (click)="seek($event)">
+          <canvas #globalCanvas class="global-waveform"></canvas>
+          <div class="playhead" [style.left.%]="progressPercent()"></div>
+        </div>
+        <div class="time-labels-row">
+          <span class="time-label current">{{ formatTime(currentTime()) }}</span>
+          <span class="time-label remaining">-{{ formatTime(duration() - currentTime()) }}</span>
+        </div>
+      </div>
+
+      <div class="main-controls-row">
+        <div class="control-group">
+          <div class="pitch-buttons">
+            <button (click)="changePitch(-1)" class="btn-small" [disabled]="pitch() <= -12">-</button>
+            <span class="pitch-value" [class.up]="pitch() > 0" [class.down]="pitch() < 0">
+              @if (pitch() > 0) { <span class="dir-icon">▲</span> }
+              @if (pitch() < 0) { <span class="dir-icon">▼</span> }
+              {{ getCurrentKey() }}
+            </span>
+            <button (click)="changePitch(1)" class="btn-small" [disabled]="pitch() >= 12">+</button>
+          </div>
+        </div>
+
+        <button (click)="togglePlay()" class="btn-play-pause-large" [disabled]="!isLoaded()">
+          @if (isPlaying()) {
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          }
+        </button>
+
+        <div class="control-group">
+          <button class="btn-metronome-row" [class.active]="metronomeEnabled()" (click)="toggleMetronome()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 2L5 22h14L12 2zm0 3.35L17.52 20H6.48L12 5.35zM11 9v6h2V9h-2z" />
+            </svg>
+            <span class="bpm-text">{{ song()?.bpm }} BPM</span>
+            <span class="label-text">METRO</span>
+          </button>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  @if (song()?.status === 'completed' && !isLoaded()) {
+    <div class="loading-overlay">
+      <div class="loader"></div>
+      <p>{{ audioLoadingStatus() }}</p>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="audioLoadingProgress()"></div>
+      </div>
+    </div>
+  }
+</div>

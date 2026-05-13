@@ -1,0 +1,32 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Registro</h2>
+    <p>Introduce tu email para comenzar el registro. Te enviaremos un código de verificación.</p>
+    
+    <form (submit)="onSubmit(); $event.preventDefault()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="username" [formField]="registerForm.email" placeholder="tu@email.com" />
+        @if (registerForm.email().touched() && registerForm.email().errors().length) {
+          <span class="error-text">{{ registerForm.email().errors()[0].message }}</span>
+        }
+      </div>
+
+      @if (error()) {
+        <div class="alert alert-danger">{{ error() }}</div>
+      }
+
+      <button type="submit" [disabled]="registerForm().invalid() || loading()">
+        @if (loading()) {
+          Enviando...
+        } @else {
+          Verificar email
+        }
+      </button>
+
+      <div class="auth-footer">
+        ¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</div>

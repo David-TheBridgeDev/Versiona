@@ -1,0 +1,22 @@
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs
+.idea/
+.vscode/
+
+# Project Specific
+uploads/
+**/__pycache__/
+**/*.pyc
+node_modules/
+dist/
+.angular/
+.pytest_cache/

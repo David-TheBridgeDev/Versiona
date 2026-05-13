@@ -1,0 +1,124 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <a routerLink="/" class="back-link">← Volver</a>
+      <h2>Mi Perfil</h2>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-danger">{{ error() }}</div>
+    }
+    @if (success()) {
+      <div class="alert alert-success">{{ success() }}</div>
+    }
+
+    <form (submit)="onSubmit(); $event.preventDefault()">
+      <div class="user-details-readonly">
+        <div class="detail-item">
+          <span class="label">Estado:</span>
+          <span class="value" [class.verified]="currentUser()?.is_verified">
+            {{ currentUser()?.is_verified ? 'Verificado' : 'Pendiente de verificación' }}
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Miembro desde:</span>
+          <span class="value">{{ currentUser()?.created_at | date: 'longDate' }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" [value]="model().email" disabled class="disabled-input" />
+      </div>
+
+      <div class="form-group">
+        <label for="full_name">Nombre Completo</label>
+        <input id="full_name" type="text" [formField]="profileForm.full_name" placeholder="Tu nombre" />
+        @if (profileForm.full_name().touched() && profileForm.full_name().errors().length) {
+          <span class="error-text">{{ profileForm.full_name().errors()[0].message }}</span>
+        }
+      </div>
+
+      <div class="form-actions-row">
+        <button type="submit" [disabled]="profileForm().invalid()" class="btn-primary">
+          Guardar Cambios
+        </button>
+        <button type="button" (click)="openPasswordModal()" class="btn-outline">
+          Cambiar Contraseña
+        </button>
+      </div>
+      </form>
+
+      <div class="actions">
+      <button class="btn-secondary" (click)="onLogout()">Cerrar Sesión</button>
+
+      @if (!showDeleteConfirm()) {
+        <button class="btn-danger" (click)="confirmDelete()">Eliminar Cuenta</button>
+      } @else {
+        <div class="delete-confirm">
+          <p>¿Estás seguro? Esta acción es irreversible.</p>
+          <div class="confirm-buttons">
+            <button class="btn-danger" (click)="onDeleteAccount()">Sí, eliminar</button>
+            <button class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+          </div>
+        </div>
+      }
+      </div>
+      </div>
+      </div>
+
+      <!-- Modal de Cambio de Contraseña -->
+      @if (showPasswordModal()) {
+      <div class="modal-overlay" (click)="closePasswordModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Cambiar Contraseña</h2>
+        <button (click)="closePasswordModal()" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (submit)="onChangePassword(); $event.preventDefault()">
+          <div class="form-group">
+            <label for="current_password">Contraseña Actual</label>
+            <input id="current_password" type="password" [formField]="passwordForm.current_password" placeholder="••••••••" />
+            @if (passwordForm.current_password().touched() && passwordForm.current_password().errors().length) {
+              <span class="error-text">{{ passwordForm.current_password().errors()[0].message }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="new_password">Nueva Contraseña</label>
+            <input id="new_password" type="password" [formField]="passwordForm.new_password" placeholder="Mínimo 8 caracteres" />
+            @if (passwordForm.new_password().touched() && passwordForm.new_password().errors().length) {
+              <span class="error-text">{{ passwordForm.new_password().errors()[0].message }}</span>
+            }
+            @if (passwordForm.new_password().touched() && !passwordIsDifferent()) {
+              <span class="error-text">La nueva contraseña debe ser diferente a la actual</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="confirm_password">Confirmar Nueva Contraseña</label>
+            <input id="confirm_password" type="password" [formField]="passwordForm.confirm_password" placeholder="••••••••" />
+            @if (passwordForm.confirm_password().touched() && passwordForm.confirm_password().errors().length) {
+              <span class="error-text">{{ passwordForm.confirm_password().errors()[0].message }}</span>
+            }
+            @if (passwordForm.confirm_password().touched() && !passwordsMatch()) {
+              <span class="error-text">Las contraseñas no coinciden</span>
+            }
+          </div>
+
+          @if (modalError()) {
+            <div class="alert alert-danger">{{ modalError() }}</div>
+          }
+
+          <div class="actions">
+            <button type="button" (click)="closePasswordModal()" class="btn-secondary">CANCELAR</button>
+            <button type="submit" [disabled]="passwordForm().invalid() || !passwordsMatch() || !passwordIsDifferent()" class="btn-primary">
+              ACTUALIZAR CONTRASEÑA
+            </button>
+          </div>
+        </form>
+      </div>
+      </div>
+      </div>
+      }

@@ -1,0 +1,244 @@
+<div class="dashboard-container">
+  <header>
+    <h1>VERSIONA</h1>
+    <div class="user-info">
+      <a routerLink="/profile" class="profile-link" title="Ir a mi perfil">
+        {{ (authService.currentUser()?.full_name?.split(' ')?.[0]) || authService.currentUser()?.email }}
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div class="songs-header">
+      <h2>MIS CANCIONES</h2>
+      <div class="controls">
+        <div class="search-box">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Buscar canciones..."
+            class="input-search"
+          />
+        </div>
+        <div class="sort-box">
+          <select [(ngModel)]="sortBy" class="input-select-sort">
+            <option value="created_at">Fecha</option>
+            <option value="name">Título</option>
+            <option value="artist">Artista</option>
+            <option value="bpm">BPM</option>
+            <option value="key">Key</option>
+            <option value="genre">Género</option>
+            <option value="duration">Duración</option>
+          </select>
+          <button (click)="toggleSortOrder()" class="btn-icon">
+            {{ sortOrder() === 'asc' ? '↑' : '↓' }}
+          </button>
+        </div>
+        <button (click)="openModal()" class="btn-primary">NUEVA CANCIÓN</button>
+      </div>
+    </div>
+
+    <section class="songs-section">
+      <div class="songs-grid">
+        @for (song of filteredAndSortedSongs(); track song.id) {
+          <div
+            class="song-card"
+            [class.processing]="song.status === 'processing' || song.status === 'pending'"
+            [class.error]="song.status === 'error'"
+            [routerLink]="song.status === 'completed' ? ['/mixer', song.id] : null"
+          >
+            <div class="song-info">
+              <h3 [title]="song.name">{{ song.name }}</h3>
+              <p class="artist" [title]="song.artist || 'Artista desconocido'">
+                {{ song.artist || 'Artista desconocido' }}
+              </p>
+            </div>
+
+            <div class="song-actions" (click)="$event.stopPropagation()">
+              @if (song.status === 'completed') {
+                <button class="btn-dots" (click)="toggleDropdown(song.id)">⋮</button>
+                @if (activeDropdown() === song.id) {
+                  <div class="dropdown-menu">
+                    <button (click)="openInfoModal(song)">Información</button>
+                    <button class="danger" (click)="deleteSong(song.id)">Eliminar</button>
+                  </div>
+                }
+              } @else if (song.status === 'error') {
+                <button
+                  class="btn-error"
+                  (click)="openRetryModal(song)"
+                  title="Error en el procesamiento"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </button>
+              } @else {
+                <div class="processing-spinner"></div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-msg">No se encontraron canciones.</p>
+        }
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal de Carga -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>SUBIR NUEVA CANCIÓN</h2>
+          <button (click)="closeModal()" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Selecciona un archivo de audio para procesarlo con IA.</p>
+
+          <div class="upload-form">
+            <div class="form-group">
+              <label>Modo de Calidad</label>
+              <select [(ngModel)]="qualityMode" class="input-select">
+                <option value="fast">Fast (Spleeter)</option>
+                <option value="studio">Studio (Demucs 4 stems)</option>
+                <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Archivo Audio</label>
+              <input
+                type="file"
+                (change)="onFileSelected($event)"
+                accept="audio/*"
+                class="input-file"
+              />
+            </div>
+
+            <div class="actions">
+              <button (click)="closeModal()" class="btn-secondary">CANCELAR</button>
+              <button
+                (click)="createSong()"
+                [disabled]="!selectedFile || isUploading()"
+                class="btn-primary"
+              >
+                {{ isUploading() ? 'SUBIENDO...' : 'SUBIR Y PROCESAR' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Información/Metadatos -->
+  @if (showInfoModal()) {
+    <div class="modal-overlay" (click)="closeInfoModal()">
+      <div class="modal-content info-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>INFORMACIÓN DE LA CANCIÓN</h2>
+          <button (click)="closeInfoModal()" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="metadata-form">
+            <div class="form-group">
+              <label>Título</label>
+              <input type="text" [(ngModel)]="editSong.name" class="input-text" />
+            </div>
+            <div class="form-group">
+              <label>Artista</label>
+              <input type="text" [(ngModel)]="editSong.artist" class="input-text" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Género</label>
+                <input type="text" [(ngModel)]="editSong.genre" class="input-text" />
+              </div>
+              <div class="form-group">
+                <label>BPM</label>
+                <input type="number" [(ngModel)]="editSong.bpm" class="input-text" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Key</label>
+                <input type="text" [(ngModel)]="editSong.key" class="input-text" />
+              </div>
+              <div class="form-group">
+                <label>Escala</label>
+                <input type="text" [(ngModel)]="editSong.scale" class="input-text" />
+              </div>
+            </div>
+
+            <div class="file-details">
+              <p><strong>Archivo:</strong> {{ selectedSong()?.original_filename }}</p>
+              <p>
+                <strong>Duración:</strong> {{ formatDuration(selectedSong()?.duration || 0) }}
+              </p>
+              <p><strong>Calidad:</strong> {{ selectedSong()?.quality_mode }}</p>
+              <p><strong>Subido:</strong> {{ selectedSong()?.created_at | date: 'medium' }}</p>
+            </div>
+
+            <div class="actions">
+              <button (click)="closeInfoModal()" class="btn-secondary">CANCELAR</button>
+              <button (click)="saveMetadata()" class="btn-primary">GUARDAR CAMBIOS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Reintento -->
+  @if (showRetryModal()) {
+    <div class="modal-overlay" (click)="closeRetryModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="error-title">ERROR EN PROCESAMIENTO</h2>
+          <button (click)="closeRetryModal()" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="error-message">
+            <p>
+              Ha ocurrido un problema al procesar <strong>{{ selectedSong()?.name }}</strong>.
+            </p>
+            <p class="error-hint">
+              Puedes intentar procesarla de nuevo, quizás seleccionando un modo de calidad
+              diferente.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label>Cambiar Modo de Calidad (Opcional)</label>
+            <select [(ngModel)]="retryQualityMode" class="input-select">
+              <option value="fast">Fast (Spleeter)</option>
+              <option value="studio">Studio (Demucs 4 stems)</option>
+              <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
+            </select>
+          </div>
+
+          <div class="actions">
+            <button (click)="deleteSong(selectedSong()!.id)" class="btn-danger-outline">
+              ELIMINAR CANCIÓN
+            </button>
+            <div class="spacer"></div>
+            <button (click)="closeRetryModal()" class="btn-secondary">CANCELAR</button>
+            <button (click)="retryProcessing()" class="btn-primary">REINTENTAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
