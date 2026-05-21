@@ -123,22 +123,78 @@
 
           <div class="space-y-5">
             <div>
-              <label class="block mb-2 text-sm text-[#888]">Quality Mode</label>
-              <select [(ngModel)]="qualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
-                <option value="fast">Fast (Demucs Light)</option>
-                <option value="studio">Studio (Demucs 4 stems)</option>
-                <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
-              </select>
+              <label class="block mb-3 text-sm text-[#888]">Quality Mode</label>
+              <div class="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-3">
+                <button
+                  type="button"
+                  (click)="qualityMode = 'fast'"
+                  [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (qualityMode === 'fast' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+                >
+                  <span class="text-xs font-bold uppercase tracking-wider">Fast</span>
+                  <span class="text-[10px] opacity-60 mt-1">Lightweight</span>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="qualityMode = 'studio'"
+                  [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (qualityMode === 'studio' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+                >
+                  <span class="text-xs font-bold uppercase tracking-wider">Studio</span>
+                  <span class="text-[10px] opacity-60 mt-1">4 Stems</span>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="qualityMode = 'studio_pro'"
+                  [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (qualityMode === 'studio_pro' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+                >
+                  <span class="text-xs font-bold uppercase tracking-wider">Studio Pro</span>
+                  <span class="text-[10px] opacity-60 mt-1">6 Stems</span>
+                </button>
+              </div>
+
+              <div class="p-3 text-xs border rounded bg-black/20 border-border-main/50 text-gray-400">
+                @if (qualityMode === 'fast') {
+                  <p><strong>Fast Mode:</strong> Uses Demucs Light for rapid processing. Ideal for quick previews and drafts where separation precision is less critical.</p>
+                } @else if (qualityMode === 'studio') {
+                  <p><strong>Studio Mode:</strong> Standard high-quality separation into 4 stems: Vocals, Drums, Bass, and Other. Perfect for most remixing and practice needs.</p>
+                } @else if (qualityMode === 'studio_pro') {
+                  <p><strong>Studio Pro:</strong> Our most advanced model. Separates audio into 6 stems, adding dedicated tracks for Guitar and Piano for maximum control.</p>
+                }
+              </div>
             </div>
 
             <div>
               <label class="block mb-2 text-sm text-[#888]">Audio File</label>
-              <input
-                type="file"
-                (change)="onFileSelected($event)"
-                accept="audio/*"
-                class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand"
-              />
+              <div
+                (click)="fileInput.click()"
+                (dragover)="$event.preventDefault(); $event.stopPropagation(); isDragging = true"
+                (dragleave)="$event.preventDefault(); $event.stopPropagation(); isDragging = false"
+                (drop)="$event.preventDefault(); $event.stopPropagation(); onFileDropped($event)"
+                [class]="'relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-all cursor-pointer group ' + (isDragging ? 'border-brand bg-brand/5' : 'border-border-main bg-[#2a2a2a] hover:border-gray-500')"
+              >
+                <input
+                  #fileInput
+                  type="file"
+                  (change)="onFileSelected($event)"
+                  accept="audio/*"
+                  class="hidden"
+                />
+                
+                <div class="mb-3 p-3 rounded-full bg-card border border-border-main group-hover:border-brand transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+
+                @if (!selectedFile) {
+                  <p class="m-0 text-sm font-bold text-white uppercase tracking-wider">CHOOSE AUDIO FILE</p>
+                  <p class="mt-1 text-xs text-gray-500">or drag and drop it here</p>
+                } @else {
+                  <p class="m-0 text-sm font-bold text-brand uppercase tracking-wider truncate max-w-full px-4">{{ selectedFile.name }}</p>
+                  <p class="mt-1 text-xs text-gray-500">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+                }
+              </div>
             </div>
 
             <div class="flex justify-end gap-4 mt-8">
@@ -159,55 +215,105 @@
 
   <!-- Information/Metadata Modal -->
   @if (showInfoModal()) {
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeInfoModal()">
-      <div class="bg-card w-[550px] max-w-full max-h-full overflow-y-auto border border-border-main rounded-lg p-8 shadow-2xl" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-between mb-8">
-          <h2 class="m-0 text-2xl font-bold text-brand">SONG INFORMATION</h2>
-          <button (click)="closeInfoModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white transition-colors">&times;</button>
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm" (click)="closeInfoModal()">
+      <div class="bg-card w-[550px] max-w-full max-h-[90vh] overflow-y-auto border border-border-main rounded-xl p-0 shadow-2xl" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="sticky top-0 z-10 flex items-center justify-between p-6 border-b bg-card/80 backdrop-blur-md border-border-main">
+          <div class="flex items-center gap-3">
+            <div class="p-2 rounded-lg bg-brand/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <h2 class="m-0 text-xl font-bold tracking-tight text-white uppercase">Song Details</h2>
+          </div>
+          <button (click)="closeInfoModal()" class="flex items-center justify-center w-8 h-8 transition-colors rounded-full bg-border-main/50 text-gray-400 hover:text-white hover:bg-border-main">&times;</button>
         </div>
-        <div>
-          <div class="space-y-5">
-            <div>
-              <label class="block mb-2 text-sm text-[#888]">Title</label>
-              <input type="text" [(ngModel)]="editSong.name" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
-            </div>
-            <div>
-              <label class="block mb-2 text-sm text-[#888]">Artist</label>
-              <input type="text" [(ngModel)]="editSong.artist" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block mb-2 text-sm text-[#888]">Genre</label>
-                <input type="text" [(ngModel)]="editSong.genre" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
+
+        <div class="p-8">
+          <div class="space-y-6">
+            <!-- Basic Info Section -->
+            <div class="grid grid-cols-1 gap-6">
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">Title</label>
+                <div class="relative">
+                  <input type="text" [(ngModel)]="editSong.name" class="w-full p-3 pl-10 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30" placeholder="Enter song title..." />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-3.5 text-gray-500"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </div>
               </div>
-              <div>
-                <label class="block mb-2 text-sm text-[#888]">BPM</label>
-                <input type="number" [(ngModel)]="editSong.bpm" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block mb-2 text-sm text-[#888]">Key</label>
-                <input type="text" [(ngModel)]="editSong.key" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
-              </div>
-              <div>
-                <label class="block mb-2 text-sm text-[#888]">Scale</label>
-                <input type="text" [(ngModel)]="editSong.scale" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
+
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">Artist</label>
+                <div class="relative">
+                  <input type="text" [(ngModel)]="editSong.artist" class="w-full p-3 pl-10 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30" placeholder="Enter artist name..." />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-3.5 text-gray-500"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
               </div>
             </div>
 
-            <div class="p-4 mt-6 text-sm border rounded bg-surface border-border-main text-[#aaa] space-y-1">
-              <p><strong class="text-xs font-mono text-brand">File:</strong> {{ selectedSong()?.original_filename }}</p>
-              <p>
-                <strong class="text-xs font-mono text-brand">Duration:</strong> {{ formatDuration(selectedSong()?.duration || 0) }}
-              </p>
-              <p><strong class="text-xs font-mono text-brand">Quality:</strong> {{ selectedSong()?.quality_mode }}</p>
-              <p><strong class="text-xs font-mono text-brand">Uploaded:</strong> {{ selectedSong()?.created_at | date: 'medium' }}</p>
+            <!-- Musical Attributes Section -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">Genre</label>
+                <input type="text" [(ngModel)]="editSong.genre" class="w-full p-3 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30" placeholder="e.g. Rock, Pop..." />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">BPM</label>
+                <div class="relative">
+                  <input type="number" [(ngModel)]="editSong.bpm" class="w-full p-3 pr-12 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30" />
+                  <span class="absolute right-3 top-3.5 text-[10px] font-bold text-gray-600 uppercase">Tempo</span>
+                </div>
+              </div>
             </div>
 
-            <div class="flex justify-end gap-4 mt-8">
-              <button (click)="closeInfoModal()" class="px-5 py-2 transition-colors bg-transparent border rounded cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
-              <button (click)="saveMetadata()" class="px-5 py-2 font-mono font-bold transition-colors rounded cursor-pointer bg-brand text-dark hover:bg-brand-hover">SAVE CHANGES</button>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">Key</label>
+                <select [(ngModel)]="editSong.key" class="w-full p-3 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30 appearance-none">
+                  <option [value]="null">Unknown Key</option>
+                  @for (k of musicalKeys; track k) {
+                    <option [value]="k">{{ k }}</option>
+                  }
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 ml-1">Scale</label>
+                <select [(ngModel)]="editSong.scale" class="w-full p-3 text-white transition-all border rounded-lg bg-surface border-border-main focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30 appearance-none">
+                  <option [value]="null">Unknown Scale</option>
+                  @for (s of musicalScales; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Technical Info Card -->
+            <div class="mt-8 overflow-hidden border rounded-xl bg-surface/50 border-border-main">
+              <div class="px-4 py-2 border-b bg-white/5 border-border-main">
+                <span class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Technical Information</span>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500">Original File</span>
+                  <span class="font-mono text-gray-300 truncate max-w-[250px]">{{ selectedSong()?.original_filename }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500">Duration</span>
+                  <span class="px-2 py-0.5 rounded bg-brand/10 text-brand font-mono">{{ formatDuration(selectedSong()?.duration || 0) }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500">AI Quality Mode</span>
+                  <span class="px-2 py-0.5 rounded bg-border-main text-gray-300 uppercase text-[9px] font-bold tracking-wider">{{ selectedSong()?.quality_mode }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500">Processed On</span>
+                  <span class="text-gray-400">{{ selectedSong()?.created_at | date: 'medium' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-border-main">
+              <button (click)="closeInfoModal()" class="px-6 py-2.5 text-xs font-bold transition-all border rounded-lg border-border-main text-gray-400 hover:bg-border-main hover:text-white uppercase tracking-widest">Discard</button>
+              <button (click)="saveMetadata()" class="px-6 py-2.5 text-xs font-bold transition-all rounded-lg bg-brand text-dark hover:bg-brand-hover uppercase tracking-widest shadow-lg shadow-brand/20">Apply Changes</button>
             </div>
           </div>
         </div>
@@ -234,12 +340,45 @@
           </div>
 
           <div class="mb-6">
-            <label class="block mb-2 text-sm text-[#888]">Change Quality Mode (Optional)</label>
-            <select [(ngModel)]="retryQualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
-              <option value="fast">Fast (Demucs Light)</option>
-              <option value="studio">Studio (Demucs 4 stems)</option>
-              <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
-            </select>
+            <label class="block mb-3 text-sm text-[#888]">Change Quality Mode (Optional)</label>
+            <div class="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-3">
+              <button
+                type="button"
+                (click)="retryQualityMode = 'fast'"
+                [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (retryQualityMode === 'fast' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+              >
+                <span class="text-xs font-bold uppercase tracking-wider">Fast</span>
+                <span class="text-[10px] opacity-60 mt-1">Lightweight</span>
+              </button>
+
+              <button
+                type="button"
+                (click)="retryQualityMode = 'studio'"
+                [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (retryQualityMode === 'studio' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+              >
+                <span class="text-xs font-bold uppercase tracking-wider">Studio</span>
+                <span class="text-[10px] opacity-60 mt-1">4 Stems</span>
+              </button>
+
+              <button
+                type="button"
+                (click)="retryQualityMode = 'studio_pro'"
+                [class]="'relative flex flex-col items-center justify-center p-4 border rounded transition-all text-center ' + (retryQualityMode === 'studio_pro' ? 'border-brand bg-brand/10 text-brand' : 'border-border-main bg-[#2a2a2a] text-gray-400 hover:border-gray-500')"
+              >
+                <span class="text-xs font-bold uppercase tracking-wider">Studio Pro</span>
+                <span class="text-[10px] opacity-60 mt-1">6 Stems</span>
+              </button>
+            </div>
+
+            <div class="p-3 text-xs border rounded bg-black/20 border-border-main/50 text-gray-400">
+              @if (retryQualityMode === 'fast') {
+                <p><strong>Fast Mode:</strong> Uses Demucs Light for rapid processing. Ideal for quick previews and drafts where separation precision is less critical.</p>
+              } @else if (retryQualityMode === 'studio') {
+                <p><strong>Studio Mode:</strong> Standard high-quality separation into 4 stems: Vocals, Drums, Bass, and Other. Perfect for most remixing and practice needs.</p>
+              } @else if (retryQualityMode === 'studio_pro') {
+                <p><strong>Studio Pro:</strong> Our most advanced model. Separates audio into 6 stems, adding dedicated tracks for Guitar and Piano for maximum control.</p>
+              }
+            </div>
           </div>
 
           <div class="flex items-center mt-8">

@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   songs = signal<Song[]>([]);
   showModal = signal(false);
   isUploading = signal(false);
+  isDragging = false;
 
   // Controls
   searchTerm = signal('');
@@ -39,6 +40,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Form
   qualityMode = 'studio';
   selectedFile: File | null = null;
+
+  // Constants
+  readonly musicalKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  readonly musicalScales = ['Major', 'Minor'];
 
   private pollInterval: any;
 
@@ -183,6 +188,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+  }
+
+  onFileDropped(event: DragEvent) {
+    this.isDragging = false;
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.selectedFile = event.dataTransfer.files[0];
+    }
   }
 
   createSong() {
