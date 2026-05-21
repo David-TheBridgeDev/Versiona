@@ -87,8 +87,8 @@
 
 <!-- Change Password Modal -->
 @if (showPasswordModal()) {
-  <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closePasswordModal()">
-    <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closePasswordModal()">
+    <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between mb-6">
         <h2 class="m-0 text-xl font-mono text-brand">Change Password</h2>
         <button (click)="closePasswordModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>

@@ -1,6 +1,8 @@
 <div class="mx-auto max-w-[1200px] p-8">
   <header class="flex items-center justify-between pb-4 mb-8 border-b-2 border-brand">
-    <h1 class="m-0 text-3xl font-mono tracking-[4px] text-brand">VERSIONA</h1>
+    <a routerLink="/dashboard" class="flex items-center">
+      <img src="logo.svg" alt="VERSIONA" class="h-10 w-auto" />
+    </a>
     <div class="flex items-center gap-4">
       <a routerLink="/profile" class="inline-block max-w-[150px] px-4 py-2 font-bold transition-all border rounded border-border-main text-brand font-mono truncate hover:bg-card hover:border-brand" title="Go to my profile">
         {{ (authService.currentUser()?.full_name?.split(' ')?.[0]) || authService.currentUser()?.email }}
@@ -101,8 +103,8 @@
 
   <!-- Upload Modal -->
   @if (showModal()) {
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeModal()">
-      <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeModal()">
+      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-6">
           <h2 class="m-0 text-xl font-mono text-brand">UPLOAD NEW SONG</h2>
           <button (click)="closeModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
@@ -148,8 +150,8 @@
 
   <!-- Information/Metadata Modal -->
   @if (showInfoModal()) {
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeInfoModal()">
-      <div class="bg-card w-[550px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeInfoModal()">
+      <div class="bg-card w-[550px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-6">
           <h2 class="m-0 text-xl font-mono text-brand">SONG INFORMATION</h2>
           <button (click)="closeInfoModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
@@ -206,8 +208,8 @@
 
   <!-- Retry Modal -->
   @if (showRetryModal()) {
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeRetryModal()">
-      <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeRetryModal()">
+      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-6">
           <h2 class="m-0 text-xl font-mono text-error">PROCESSING ERROR</h2>
           <button (click)="closeRetryModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
