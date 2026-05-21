@@ -104,10 +104,10 @@
   <!-- Upload Modal -->
   @if (showModal()) {
     <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeModal()">
-      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="m-0 text-xl font-mono text-brand">UPLOAD NEW SONG</h2>
-          <button (click)="closeModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
+      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border border-border-main rounded-lg p-8 shadow-2xl" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="m-0 text-2xl font-bold text-brand">UPLOAD NEW SONG</h2>
+          <button (click)="closeModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white transition-colors">&times;</button>
         </div>
         <div>
           <p class="mb-6 text-sm text-gray-400">Select an audio file to process it with AI.</p>
@@ -116,7 +116,7 @@
             <div>
               <label class="block mb-2 text-sm text-[#888]">Quality Mode</label>
               <select [(ngModel)]="qualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
-                <option value="fast">Fast (Spleeter)</option>
+                <option value="fast">Fast (Demucs Light)</option>
                 <option value="studio">Studio (Demucs 4 stems)</option>
                 <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
               </select>
@@ -133,11 +133,11 @@
             </div>
 
             <div class="flex justify-end gap-4 mt-8">
-              <button (click)="closeModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+              <button (click)="closeModal()" class="px-5 py-2 transition-colors bg-transparent border rounded cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
               <button
                 (click)="createSong()"
                 [disabled]="!selectedFile || isUploading()"
-                class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-5 py-2 font-mono font-bold transition-colors rounded cursor-pointer bg-brand text-dark hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ isUploading() ? 'UPLOADING...' : 'UPLOAD AND PROCESS' }}
               </button>
@@ -151,10 +151,10 @@
   <!-- Information/Metadata Modal -->
   @if (showInfoModal()) {
     <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeInfoModal()">
-      <div class="bg-card w-[550px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="m-0 text-xl font-mono text-brand">SONG INFORMATION</h2>
-          <button (click)="closeInfoModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
+      <div class="bg-card w-[550px] max-w-full max-h-full overflow-y-auto border border-border-main rounded-lg p-8 shadow-2xl" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="m-0 text-2xl font-bold text-brand">SONG INFORMATION</h2>
+          <button (click)="closeInfoModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white transition-colors">&times;</button>
         </div>
         <div>
           <div class="space-y-5">
@@ -187,7 +187,7 @@
               </div>
             </div>
 
-            <div class="p-4 mt-6 text-sm border bg-surface border-[#222] text-[#aaa] space-y-1">
+            <div class="p-4 mt-6 text-sm border rounded bg-surface border-border-main text-[#aaa] space-y-1">
               <p><strong class="text-xs font-mono text-brand">File:</strong> {{ selectedSong()?.original_filename }}</p>
               <p>
                 <strong class="text-xs font-mono text-brand">Duration:</strong> {{ formatDuration(selectedSong()?.duration || 0) }}
@@ -197,8 +197,8 @@
             </div>
 
             <div class="flex justify-end gap-4 mt-8">
-              <button (click)="closeInfoModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
-              <button (click)="saveMetadata()" class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover">SAVE CHANGES</button>
+              <button (click)="closeInfoModal()" class="px-5 py-2 transition-colors bg-transparent border rounded cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+              <button (click)="saveMetadata()" class="px-5 py-2 font-mono font-bold transition-colors rounded cursor-pointer bg-brand text-dark hover:bg-brand-hover">SAVE CHANGES</button>
             </div>
           </div>
         </div>
@@ -209,10 +209,10 @@
   <!-- Retry Modal -->
   @if (showRetryModal()) {
     <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" (click)="closeRetryModal()">
-      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="m-0 text-xl font-mono text-error">PROCESSING ERROR</h2>
-          <button (click)="closeRetryModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
+      <div class="bg-card w-[500px] max-w-full max-h-full overflow-y-auto border border-border-main rounded-lg p-8 shadow-2xl" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="m-0 text-2xl font-bold text-error">PROCESSING ERROR</h2>
+          <button (click)="closeRetryModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white transition-colors">&times;</button>
         </div>
         <div>
           <div class="mb-6 space-y-2">
@@ -227,20 +227,20 @@
           <div class="mb-6">
             <label class="block mb-2 text-sm text-[#888]">Change Quality Mode (Optional)</label>
             <select [(ngModel)]="retryQualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
-              <option value="fast">Fast (Spleeter)</option>
+              <option value="fast">Fast (Demucs Light)</option>
               <option value="studio">Studio (Demucs 4 stems)</option>
               <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
             </select>
           </div>
 
           <div class="flex items-center mt-8">
-            <button (click)="deleteSong(selectedSong()!.id)" class="px-4 py-2 text-xs font-mono transition-colors bg-transparent border cursor-pointer border-error text-error hover:bg-error/10">
+            <button (click)="deleteSong(selectedSong()!.id)" class="px-4 py-2 text-xs font-mono transition-colors bg-transparent border rounded cursor-pointer border-error text-error hover:bg-error/10">
               DELETE SONG
             </button>
             <div class="flex-1"></div>
             <div class="flex gap-4">
-              <button (click)="closeRetryModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
-              <button (click)="retryProcessing()" class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover">RETRY</button>
+              <button (click)="closeRetryModal()" class="px-5 py-2 transition-colors bg-transparent border rounded cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+              <button (click)="retryProcessing()" class="px-5 py-2 font-mono font-bold transition-colors rounded cursor-pointer bg-brand text-dark hover:bg-brand-hover">RETRY</button>
             </div>
           </div>
         </div>
