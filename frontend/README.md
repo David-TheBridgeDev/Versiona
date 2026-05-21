@@ -44,6 +44,14 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
+## Styling
+
+This project uses **Tailwind CSS v4** for styling.
+
+- **Configuration:** Configuration is done directly in `src/styles.css` using the `@theme` block.
+- **Customization:** Brand colors and custom animations are defined as CSS variables within the `@theme` block.
+- **Usage:** Use standard Tailwind utility classes in your templates. Custom utilities and base styles are also defined in `src/styles.css`.
+
 ## Running end-to-end tests
 
 For end-to-end (e2e) testing, run:

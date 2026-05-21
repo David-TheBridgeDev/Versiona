@@ -11,7 +11,7 @@ Versiona is a SaaS platform designed for musicians that enables track separation
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Angular 21, Tone.js, Vanilla SCSS (Accent #efbc21).
+- **Frontend:** Angular 21, Tone.js, Tailwind CSS v4 (Custom @theme with brand #efbc21).
 - **Backend:** FastAPI (Python), SQLAlchemy, PostgreSQL.
 - **Processing:** Celery, Redis, Librosa, Demucs/Spleeter.
 - **PWA:** Angular Service Worker, Web Manifest.
