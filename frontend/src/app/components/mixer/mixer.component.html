@@ -1,97 +1,108 @@
-<div class="mixer-container">
-  <header class="mixer-header-mini">
-    <button routerLink="/dashboard" class="btn-back-small">
+<div class="flex flex-col h-full">
+  <header class="flex items-center gap-4 px-6 py-2 border-b bg-card border-border-main">
+    <button routerLink="/dashboard" class="flex items-center justify-center transition-all bg-transparent border rounded cursor-pointer w-7 h-7 border-border-light text-gray-500 hover:bg-brand hover:border-brand hover:text-dark">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M19 12H5M12 19l-7-7 7-7" />
       </svg>
     </button>
-    <h1 class="song-name-mini">{{ song()?.name }}</h1>
+    <h1 class="m-0 text-sm font-bold font-mono text-brand line-clamp-2">{{ song()?.name }}</h1>
   </header>
 
-  <section class="chord-viewer-row" *ngIf="isLoaded()">
-    <div class="chord-progression">
-      <div class="chord-item previous" [class.visible]="previousChord()">
+  <section class="py-3 border-b-2 bg-[#181818] border-brand" *ngIf="isLoaded()">
+    <div class="flex items-center justify-center gap-12 mx-auto max-w-[1400px]">
+      <div class="font-mono font-bold transition-all duration-300 text-2xl text-border-light opacity-0 scale-75" [class.opacity-100]="previousChord()">
         {{ previousChord() }}
       </div>
-      <div class="chord-item active">
-        <span class="value">{{ currentChord() }}</span>
+      <div class="flex flex-col items-center min-w-[120px] font-mono font-bold transition-all duration-300">
+        <span class="text-[2.8rem] text-brand leading-none drop-shadow-[0_0_20px_rgba(239,188,33,0.4)]">{{ currentChord() }}</span>
       </div>
-      <div class="chord-item next" [class.visible]="nextChord()">
+      <div class="font-mono font-bold transition-all duration-300 text-2xl text-border-light opacity-0 scale-75" [class.opacity-100]="nextChord()">
         {{ nextChord() }}
       </div>
     </div>
   </section>
 
   @if (song()?.status === 'processing') {
-    <div class="processing-overlay">
-      <div class="loader"></div>
+    <div class="flex flex-col items-center justify-center flex-1 gap-6 bg-dark text-brand">
+      <div class="w-12 h-12 border-4 rounded-full border-border-main border-t-brand animate-spin-slow"></div>
       <p>{{ progressStatus() }}</p>
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="progressValue()"></div>
+      <div class="w-[300px] h-2.5 rounded-full overflow-hidden bg-border-main">
+        <div class="h-full transition-all duration-300 bg-brand" [style.width.%]="progressValue()"></div>
       </div>
     </div>
   }
 
-  <main class="mixer-main" [class.hidden]="song()?.status === 'processing' || !isLoaded()">
+  <main class="flex flex-col flex-1 overflow-hidden" [class.hidden]="song()?.status === 'processing' || !isLoaded()">
     <!-- Top Section: Compact Tracks -->
-    <section class="tracks-top">
-      <div class="tracks-grid">
+    <section class="flex-1 p-4 overflow-y-auto md:px-6 bg-dark scrollbar-custom">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 mx-auto max-w-[1400px]">
         @for (track of tracks(); track track.type; let i = $index) {
           <div
-            class="track-item"
-            [class.is-soloed]="track.isSolo"
-            [class.is-dimmed]="tracks().some(t => t.isSolo) && !track.isSolo"
-            [class.is-muted]="track.isMuted"
+            class="relative flex flex-col gap-2 px-3 py-2 transition-all duration-300 border rounded-md select-none bg-card border-border-main hover:border-brand hover:bg-[#252525]"
+            [class.animate-solo-pulse]="track.isSolo"
+            [class.border-brand]="track.isSolo"
+            [class.shadow-[0_0_15px_rgba(239,188,33,0.1)]]="track.isSolo"
+            [class.opacity-40]="tracks().some(t => t.isSolo) && !track.isSolo"
+            [class.grayscale-[0.5]]="tracks().some(t => t.isSolo) && !track.isSolo"
+            [class.bg-[#151515]]="track.isMuted"
+            [class.border-border-light]="track.isMuted"
             (dblclick)="resetVolume(track)"
           >
-            <div class="track-main-row">
-              <div class="track-header">
-                <span class="track-icon" [innerHTML]="getTrackIcon(track.type)"></span>
-                <span class="track-name">{{ track.type }}</span>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 min-w-[80px] text-brand">
+                <span class="flex p-1 rounded bg-brand/10" [innerHTML]="getTrackIcon(track.type)"></span>
+                <span class="text-[0.65rem] font-bold uppercase font-mono truncate">{{ track.type }}</span>
               </div>
               
-              <div class="track-waveform-mini">
-                <canvas #trackCanvas class="track-canvas"></canvas>
+              <div class="flex-1 h-6 overflow-hidden border rounded-sm bg-black/20 border-border-main">
+                <canvas #trackCanvas class="block w-full h-full"></canvas>
               </div>
-
             </div>
 
-            <div class="track-actions">
-              <div class="solo-mute-group">
+            <div class="flex items-center gap-3">
+              <div class="flex gap-1">
                 <button
-                  class="btn-action btn-solo"
-                  [class.active]="track.isSolo"
+                  class="w-6 h-6 text-[0.65rem] font-bold font-mono transition-colors border rounded cursor-pointer bg-[#2a2a2a] border-border-light text-gray-500"
+                  [class.bg-brand]="track.isSolo"
+                  [class.border-brand]="track.isSolo"
+                  [class.text-dark]="track.isSolo"
                   (click)="toggleSolo(track)"
                   title="SOLO: Isolate this instrument"
                 >S</button>
                 <button
-                  class="btn-action btn-mute"
-                  [class.active]="track.isMuted"
+                  class="w-6 h-6 text-[0.65rem] font-bold font-mono transition-colors border rounded cursor-pointer bg-[#2a2a2a] border-border-light text-gray-500"
+                  [class.bg-mute]="track.isMuted"
+                  [class.border-mute]="track.isMuted"
+                  [class.text-dark]="track.isMuted"
                   (click)="toggleMute(track)"
                   title="MUTE: Silence this instrument"
                 >M</button>
               </div>
 
-              <div class="volume-slider-horizontal" [style.--vol-percent.%]="getVolumePercent(track)">
-                <div class="volume-bar-bg">
-                  <div class="volume-fill"></div>
+              <div class="relative flex flex-1 items-center h-4 group" [style.--vol-percent.%]="getVolumePercent(track)">
+                <div class="relative w-full h-1 overflow-hidden rounded-sm bg-border-main">
+                  <div class="absolute top-0 left-0 h-full bg-brand" [style.width.%]="getVolumePercent(track)"></div>
                 </div>
-                <input type="range" min="0" max="100" step="1" [value]="getVolumeLevel(track)" (input)="onVolumeChange($event, track)" class="volume-input" />
-                <span class="volume-tooltip">{{ getVolumeLevel(track) }}</span>
+                <input type="range" min="0" max="100" step="1" [value]="getVolumeLevel(track)" (input)="onVolumeChange($event, track)" class="absolute w-full h-full opacity-0 cursor-pointer" />
+                <span class="absolute bottom-[150%] left-[var(--vol-percent,50%)] -translate-x-1/2 font-mono text-[0.65rem] font-bold text-brand bg-[#2a2a2a] border border-border-light px-2 py-1 rounded min-w-[25px] text-center pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 shadow-2xl after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-[#2a2a2a]">
+                  {{ getVolumeLevel(track) }}
+                </span>
               </div>
 
-              <div class="pan-container" (click)="$event.stopPropagation()">
+              <div class="relative ml-auto" (click)="$event.stopPropagation()">
                 <button
-                  class="btn-action btn-pan"
-                  [class.active]="track.pan !== 0"
+                  class="w-6 h-6 text-[0.65rem] font-bold font-mono transition-colors border rounded cursor-pointer bg-[#2a2a2a] border-border-light text-gray-500"
+                  [class.bg-pan]="track.pan !== 0"
+                  [class.border-pan]="track.pan !== 0"
+                  [class.text-white]="track.pan !== 0"
                   (click)="togglePanModal(track.type, $event)"
                   title="PAN: Stereo positioning (L/R)"
                 >P</button>
                 @if (activePanTrack() === track.type) {
-                  <div class="pan-tooltip">
-                    <div class="pan-mini">
-                      <input type="range" min="-1" max="1" step="0.1" [value]="track.pan" (input)="onPanChange($event, track)" class="pan-input" />
-                      <span class="pan-label">{{ getPanLabel(track.pan) }}</span>
+                  <div class="absolute bottom-[120%] right-0 z-10 p-2 border shadow-2xl rounded-md bg-[#2a2a2a] border-border-light after:content-[''] after:absolute after:top-full after:right-2 after:border-4 after:border-transparent after:border-t-[#2a2a2a]">
+                    <div class="flex items-center gap-2">
+                      <input type="range" min="-1" max="1" step="0.1" [value]="track.pan" (input)="onPanChange($event, track)" class="w-[60px] h-2 rounded-full bg-border-light outline-none appearance-none accent-brand" />
+                      <span class="font-mono text-[0.6rem] text-gray-400 min-w-[22px] text-center">{{ getPanLabel(track.pan) }}</span>
                     </div>
                   </div>
                 }
@@ -103,32 +114,32 @@
     </section>
 
     <!-- Bottom Section: Player -->
-    <footer class="player-bottom">
-      <div class="waveform-outer">
-        <div class="waveform-main-container" (click)="seek($event)">
-          <canvas #globalCanvas class="global-waveform"></canvas>
-          <div class="playhead" [style.left.%]="progressPercent()"></div>
+    <footer class="flex flex-col gap-4 p-6 bg-card border-t border-border-main">
+      <div class="flex flex-col gap-2">
+        <div class="relative w-full h-[60px] overflow-hidden border rounded cursor-pointer bg-dark border-border-main" (click)="seek($event)">
+          <canvas #globalCanvas class="w-full h-full"></canvas>
+          <div class="absolute top-0 bottom-0 w-0.5 bg-brand z-10 pointer-events-none shadow-[0_0_10px_rgba(239,188,33,0.5)]" [style.left.%]="progressPercent()"></div>
         </div>
-        <div class="time-labels-row">
-          <span class="time-label current">{{ formatTime(currentTime()) }}</span>
-          <span class="time-label remaining">-{{ formatTime(duration() - currentTime()) }}</span>
+        <div class="flex justify-between w-full">
+          <span class="font-mono text-sm font-bold text-brand">{{ formatTime(currentTime()) }}</span>
+          <span class="font-mono text-sm font-bold text-gray-600">-{{ formatTime(duration() - currentTime()) }}</span>
         </div>
       </div>
 
-      <div class="main-controls-row">
-        <div class="control-group">
-          <div class="pitch-buttons">
-            <button (click)="changePitch(-1)" class="btn-small" [disabled]="pitch() <= -12">-</button>
-            <span class="pitch-value" [class.up]="pitch() > 0" [class.down]="pitch() < 0">
-              @if (pitch() > 0) { <span class="dir-icon">▲</span> }
-              @if (pitch() < 0) { <span class="dir-icon">▼</span> }
+      <div class="flex items-center justify-center gap-6 md:gap-16">
+        <div class="flex flex-col items-center gap-2">
+          <div class="flex items-center gap-3 px-3 py-1.5 border rounded-md bg-[#2a2a2a] border-border-light">
+            <button (click)="changePitch(-1)" class="flex items-center justify-center w-6 h-6 text-sm font-bold border-none rounded cursor-pointer bg-border-main text-brand" [disabled]="pitch() <= -12">-</button>
+            <span class="flex items-center justify-center gap-1 min-w-[55px] font-mono text-base font-bold text-brand text-center" [class.text-[#3a86ff]]="pitch() > 0" [class.text-[#ff4d6d]]="pitch() < 0">
+              @if (pitch() > 0) { <span class="text-[0.65rem] opacity-80">▲</span> }
+              @if (pitch() < 0) { <span class="text-[0.65rem] opacity-80">▼</span> }
               {{ getCurrentKey() }}
             </span>
-            <button (click)="changePitch(1)" class="btn-small" [disabled]="pitch() >= 12">+</button>
+            <button (click)="changePitch(1)" class="flex items-center justify-center w-6 h-6 text-sm font-bold border-none rounded cursor-pointer bg-border-main text-brand" [disabled]="pitch() >= 12">+</button>
           </div>
         </div>
 
-        <button (click)="togglePlay()" class="btn-play-pause-large" [disabled]="!isLoaded()">
+        <button (click)="togglePlay()" class="flex items-center justify-center w-[68px] h-[68px] transition-all border-none rounded-full shadow-xl cursor-pointer bg-brand text-dark shadow-brand/20 hover:scale-105 hover:shadow-brand/40 disabled:opacity-50 disabled:cursor-wait" [disabled]="!isLoaded()">
           @if (isPlaying()) {
             <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
               <rect x="6" y="4" width="4" height="16" />
@@ -141,13 +152,13 @@
           }
         </button>
 
-        <div class="control-group">
-          <button class="btn-metronome-row" [class.active]="metronomeEnabled()" (click)="toggleMetronome()">
+        <div class="flex flex-col items-center gap-2">
+          <button class="flex items-center gap-3 px-4 py-2.5 transition-all border rounded-md cursor-pointer bg-[#2a2a2a] border-border-light text-gray-500 hover:border-brand/50" [class.bg-brand]="metronomeEnabled()" [class.border-brand]="metronomeEnabled()" [class.text-dark]="metronomeEnabled()" (click)="toggleMetronome()">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M12 2L5 22h14L12 2zm0 3.35L17.52 20H6.48L12 5.35zM11 9v6h2V9h-2z" />
             </svg>
-            <span class="bpm-text">{{ song()?.bpm }} BPM</span>
-            <span class="label-text">METRO</span>
+            <span class="font-mono text-sm font-bold">{{ song()?.bpm }} BPM</span>
+            <span class="hidden md:block pl-3 text-[0.65rem] font-bold border-l border-current">METRO</span>
           </button>
         </div>
       </div>
@@ -155,11 +166,11 @@
   </main>
 
   @if (song()?.status === 'completed' && !isLoaded()) {
-    <div class="loading-overlay">
-      <div class="loader"></div>
+    <div class="flex flex-col items-center justify-center flex-1 gap-6 bg-dark text-brand">
+      <div class="w-12 h-12 border-4 rounded-full border-border-main border-t-brand animate-spin-slow"></div>
       <p>{{ audioLoadingStatus() }}</p>
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="audioLoadingProgress()"></div>
+      <div class="w-[300px] h-2.5 rounded-full overflow-hidden bg-border-main">
+        <div class="h-full transition-all duration-300 bg-brand" [style.width.%]="audioLoadingProgress()"></div>
       </div>
     </div>
   }

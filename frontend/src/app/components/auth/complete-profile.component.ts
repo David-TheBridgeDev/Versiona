@@ -8,7 +8,6 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [FormField],
   templateUrl: './complete-profile.component.html',
-  styleUrl: './complete-profile.component.scss',
 })
 export class CompleteProfileComponent implements OnInit {
   private authService = inject(AuthService);

@@ -1,36 +1,43 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Verify your account</h2>
-    <p>We have sent a 6-digit code to <strong>{{ email() }}</strong>. Enter the code below to verify your account.</p>
+<div class="flex items-center justify-center min-h-[80vh]">
+  <div class="w-full max-w-md p-8 border rounded-lg shadow-xl bg-card border-border-main">
+    <h2 class="mb-4 text-2xl font-bold text-center text-brand">Verify your account</h2>
+    <p class="mb-6 text-sm text-center text-gray-400">
+      We have sent a 6-digit code to <strong>{{ email() }}</strong>. Enter the code below to verify your account.
+    </p>
 
     @if (error()) {
-      <div class="alert alert-danger">
+      <div class="p-3 mb-4 text-sm border rounded bg-error/10 text-error border-error">
         {{ error() }}
       </div>
     }
 
     @if (success()) {
-      <div class="alert alert-success">
+      <div class="p-3 mb-4 text-sm border rounded bg-success/10 text-success border-success">
         {{ success() }}
       </div>
     }
 
     <form (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="code">Verification code</label>
-        <input 
-          type="text" 
-          id="code" 
-          [formField]="verifyForm.code" 
+      <div class="mb-4">
+        <label for="code" class="block mb-2 text-sm text-[#ccc]">Verification code</label>
+        <input
+          type="text"
+          id="code"
+          [formField]="verifyForm.code"
           placeholder="000000"
           autocomplete="one-time-code"
-        >
+          class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+        />
         @if (verifyForm.code().touched() && verifyForm.code().errors().length) {
-          <div class="error-text">{{ verifyForm.code().errors()[0].message }}</div>
+          <div class="mt-1 text-xs text-error">{{ verifyForm.code().errors()[0].message }}</div>
         }
       </div>
 
-      <button type="submit" [disabled]="verifyForm().invalid() || loading()">
+      <button
+        type="submit"
+        [disabled]="verifyForm().invalid() || loading()"
+        class="w-full p-3 mt-4 font-bold transition-colors rounded bg-brand text-dark hover:bg-brand-hover disabled:bg-gray-600 disabled:cursor-not-allowed"
+      >
         @if (loading()) {
           Verifying...
         } @else {
@@ -38,13 +45,18 @@
         }
       </button>
 
-      <button type="button" class="btn-link" (click)="resendCode()" [disabled]="loading()">
+      <button
+        type="button"
+        (click)="resendCode()"
+        [disabled]="loading()"
+        class="w-full mt-4 text-sm font-medium transition-colors text-brand hover:underline disabled:text-gray-600 disabled:no-underline"
+      >
         I haven't received the code, resend
       </button>
     </form>
 
-    <div class="auth-footer">
-      Already verified your account? <a routerLink="/auth/login">Login</a>
+    <div class="mt-6 text-sm text-center text-gray-500">
+      Already verified your account? <a routerLink="/auth/login" class="text-brand hover:underline">Login</a>
     </div>
   </div>
 </div>

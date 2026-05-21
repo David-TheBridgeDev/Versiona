@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@source "./app/**/*.{html,ts}";
+
+@theme {
+  --color-brand: #efbc21;
+  --color-brand-hover: #d4a71d;
+  --color-dark: #121212;
+  --color-card: #1e1e1e;
+  --color-surface: #181818;
+  --color-border-main: #333;
+  --color-border-light: #444;
+  --color-error: #ff4d4d;
+  --color-success: #28a745;
+  --color-solo: #efbc21;
+  --color-mute: #ff4d6d;
+  --color-pan: #3a86ff;
+
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: "Source Sans Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --animate-solo-pulse: solo-pulse 2s infinite;
+  --animate-spin-slow: spin 1s linear infinite;
+
+  @keyframes solo-pulse {
+    0% { border-color: #efbc21; }
+    50% { border-color: rgba(239, 188, 33, 0.4); }
+    100% { border-color: #efbc21; }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-dark text-[#e0e0e0] font-sans m-0 p-0;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar utilities */
+  .scrollbar-custom {
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      @apply bg-dark;
+    }
+    &::-webkit-scrollbar-thumb {
+      @apply bg-border-main rounded-sm;
+      &:hover {
+        @apply bg-brand;
+      }
+    }
+  }
+}
+
+/* Global Loader component */
+.loader {
+  @apply border-4 border-border-main border-t-brand rounded-full w-10 h-10 animate-spin-slow;
+}

@@ -8,8 +8,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormField, RouterLink],
-  templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss'
+  templateUrl: './profile.component.html'
 })
 export class ProfileComponent {
   private authService = inject(AuthService);

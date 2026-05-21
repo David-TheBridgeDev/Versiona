@@ -1,27 +1,27 @@
-<div class="dashboard-container">
-  <header>
-    <h1>VERSIONA</h1>
-    <div class="user-info">
-      <a routerLink="/profile" class="profile-link" title="Go to my profile">
+<div class="mx-auto max-w-[1200px] p-8">
+  <header class="flex items-center justify-between pb-4 mb-8 border-b-2 border-brand">
+    <h1 class="m-0 text-3xl font-mono tracking-[4px] text-brand">VERSIONA</h1>
+    <div class="flex items-center gap-4">
+      <a routerLink="/profile" class="inline-block max-w-[150px] px-4 py-2 font-bold transition-all border rounded border-border-main text-brand font-mono truncate hover:bg-card hover:border-brand" title="Go to my profile">
         {{ (authService.currentUser()?.full_name?.split(' ')?.[0]) || authService.currentUser()?.email }}
       </a>
     </div>
   </header>
 
   <main>
-    <div class="songs-header">
-      <h2>MY SONGS</h2>
-      <div class="controls">
-        <div class="search-box">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <h2 class="m-0 text-2xl font-mono text-brand">MY SONGS</h2>
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="relative">
           <input
             type="text"
             [(ngModel)]="searchTerm"
             placeholder="Search songs..."
-            class="input-search"
+            class="w-[250px] bg-card border border-border-main text-white px-4 py-2 font-sans focus:outline-none focus:border-brand"
           />
         </div>
-        <div class="sort-box">
-          <select [(ngModel)]="sortBy" class="input-select-sort">
+        <div class="flex items-center gap-2">
+          <select [(ngModel)]="sortBy" class="px-4 py-2 text-white bg-card border border-border-main font-sans focus:outline-none focus:border-brand">
             <option value="created_at">Date</option>
             <option value="name">Title</option>
             <option value="artist">Artist</option>
@@ -30,42 +30,45 @@
             <option value="genre">Genre</option>
             <option value="duration">Duration</option>
           </select>
-          <button (click)="toggleSortOrder()" class="btn-icon">
+          <button (click)="toggleSortOrder()" class="px-3 py-2 border cursor-pointer bg-card border-border-main text-brand">
             {{ sortOrder() === 'asc' ? '↑' : '↓' }}
           </button>
         </div>
-        <button (click)="openModal()" class="btn-primary">NEW SONG</button>
+        <button (click)="openModal()" class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover">NEW SONG</button>
       </div>
     </div>
 
-    <section class="songs-section">
-      <div class="songs-grid">
+    <section>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @for (song of filteredAndSortedSongs(); track song.id) {
           <div
-            class="song-card"
-            [class.processing]="song.status === 'processing' || song.status === 'pending'"
-            [class.error]="song.status === 'error'"
+            class="flex items-center justify-between gap-4 p-4 transition-all border cursor-pointer bg-card border-border-main hover:border-brand hover:bg-[#252525]"
+            [class.opacity-70]="song.status === 'processing' || song.status === 'pending'"
+            [class.animate-pulse]="song.status === 'processing' || song.status === 'pending'"
+            [class.cursor-wait]="song.status === 'processing' || song.status === 'pending'"
+            [class.bg-[#2a1a1a]]="song.status === 'error'"
+            [class.border-error]="song.status === 'error'"
             [routerLink]="song.status === 'completed' ? ['/mixer', song.id] : null"
           >
-            <div class="song-info">
-              <h3 [title]="song.name">{{ song.name }}</h3>
-              <p class="artist" [title]="song.artist || 'Unknown artist'">
+            <div class="flex-1 min-w-0">
+              <h3 [title]="song.name" class="m-0 text-base font-bold text-white truncate">{{ song.name }}</h3>
+              <p class="mt-1 text-sm truncate text-brand" [title]="song.artist || 'Unknown artist'">
                 {{ song.artist || 'Unknown artist' }}
               </p>
             </div>
 
-            <div class="song-actions" (click)="$event.stopPropagation()">
+            <div class="relative" (click)="$event.stopPropagation()">
               @if (song.status === 'completed') {
-                <button class="btn-dots" (click)="toggleDropdown(song.id)">⋮</button>
+                <button class="px-2 text-2xl leading-none transition-colors bg-transparent border-none cursor-pointer text-[#888] hover:text-white" (click)="toggleDropdown(song.id)">⋮</button>
                 @if (activeDropdown() === song.id) {
-                  <div class="dropdown-menu">
-                    <button (click)="openInfoModal(song)">Information</button>
-                    <button class="danger" (click)="deleteSong(song.id)">Delete</button>
+                  <div class="absolute right-0 z-50 flex flex-col mt-2 border shadow-2xl top-full bg-[#2a2a2a] border-border-light min-w-[150px]">
+                    <button class="px-4 py-3 text-sm text-left transition-colors bg-transparent border-none cursor-pointer text-[#eee] hover:bg-border-main" (click)="openInfoModal(song)">Information</button>
+                    <button class="px-4 py-3 text-sm text-left transition-colors bg-transparent border-none cursor-pointer text-error hover:bg-[#4d1a1a]" (click)="deleteSong(song.id)">Delete</button>
                   </div>
                 }
               } @else if (song.status === 'error') {
                 <button
-                  class="btn-error"
+                  class="flex items-center justify-center p-1 transition-all bg-transparent border-none cursor-pointer text-error animate-pulse hover:scale-125"
                   (click)="openRetryModal(song)"
                   title="Processing error"
                 >
@@ -85,12 +88,12 @@
                   </svg>
                 </button>
               } @else {
-                <div class="processing-spinner"></div>
+                <div class="w-4 h-4 border-2 rounded-full border-brand border-t-transparent animate-spin"></div>
               }
             </div>
           </div>
         } @empty {
-          <p class="empty-msg">No songs found.</p>
+          <p class="grid-cols-1 p-12 text-center text-gray-600 md:col-span-2 lg:col-span-3">No songs found.</p>
         }
       </div>
     </section>
@@ -98,41 +101,41 @@
 
   <!-- Upload Modal -->
   @if (showModal()) {
-    <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>UPLOAD NEW SONG</h2>
-          <button (click)="closeModal()" class="btn-close">&times;</button>
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeModal()">
+      <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="m-0 text-xl font-mono text-brand">UPLOAD NEW SONG</h2>
+          <button (click)="closeModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
         </div>
-        <div class="modal-body">
-          <p>Select an audio file to process it with AI.</p>
+        <div>
+          <p class="mb-6 text-sm text-gray-400">Select an audio file to process it with AI.</p>
 
-          <div class="upload-form">
-            <div class="form-group">
-              <label>Quality Mode</label>
-              <select [(ngModel)]="qualityMode" class="input-select">
+          <div class="space-y-5">
+            <div>
+              <label class="block mb-2 text-sm text-[#888]">Quality Mode</label>
+              <select [(ngModel)]="qualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
                 <option value="fast">Fast (Spleeter)</option>
                 <option value="studio">Studio (Demucs 4 stems)</option>
                 <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Audio File</label>
+            <div>
+              <label class="block mb-2 text-sm text-[#888]">Audio File</label>
               <input
                 type="file"
                 (change)="onFileSelected($event)"
                 accept="audio/*"
-                class="input-file"
+                class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand"
               />
             </div>
 
-            <div class="actions">
-              <button (click)="closeModal()" class="btn-secondary">CANCEL</button>
+            <div class="flex justify-end gap-4 mt-8">
+              <button (click)="closeModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
               <button
                 (click)="createSong()"
                 [disabled]="!selectedFile || isUploading()"
-                class="btn-primary"
+                class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ isUploading() ? 'UPLOADING...' : 'UPLOAD AND PROCESS' }}
               </button>
@@ -145,55 +148,55 @@
 
   <!-- Information/Metadata Modal -->
   @if (showInfoModal()) {
-    <div class="modal-overlay" (click)="closeInfoModal()">
-      <div class="modal-content info-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>SONG INFORMATION</h2>
-          <button (click)="closeInfoModal()" class="btn-close">&times;</button>
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeInfoModal()">
+      <div class="bg-card w-[550px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="m-0 text-xl font-mono text-brand">SONG INFORMATION</h2>
+          <button (click)="closeInfoModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
         </div>
-        <div class="modal-body">
-          <div class="metadata-form">
-            <div class="form-group">
-              <label>Title</label>
-              <input type="text" [(ngModel)]="editSong.name" class="input-text" />
+        <div>
+          <div class="space-y-5">
+            <div>
+              <label class="block mb-2 text-sm text-[#888]">Title</label>
+              <input type="text" [(ngModel)]="editSong.name" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
             </div>
-            <div class="form-group">
-              <label>Artist</label>
-              <input type="text" [(ngModel)]="editSong.artist" class="input-text" />
+            <div>
+              <label class="block mb-2 text-sm text-[#888]">Artist</label>
+              <input type="text" [(ngModel)]="editSong.artist" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Genre</label>
-                <input type="text" [(ngModel)]="editSong.genre" class="input-text" />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block mb-2 text-sm text-[#888]">Genre</label>
+                <input type="text" [(ngModel)]="editSong.genre" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
               </div>
-              <div class="form-group">
-                <label>BPM</label>
-                <input type="number" [(ngModel)]="editSong.bpm" class="input-text" />
+              <div>
+                <label class="block mb-2 text-sm text-[#888]">BPM</label>
+                <input type="number" [(ngModel)]="editSong.bpm" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Key</label>
-                <input type="text" [(ngModel)]="editSong.key" class="input-text" />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block mb-2 text-sm text-[#888]">Key</label>
+                <input type="text" [(ngModel)]="editSong.key" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
               </div>
-              <div class="form-group">
-                <label>Scale</label>
-                <input type="text" [(ngModel)]="editSong.scale" class="input-text" />
+              <div>
+                <label class="block mb-2 text-sm text-[#888]">Scale</label>
+                <input type="text" [(ngModel)]="editSong.scale" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand" />
               </div>
             </div>
 
-            <div class="file-details">
-              <p><strong>File:</strong> {{ selectedSong()?.original_filename }}</p>
+            <div class="p-4 mt-6 text-sm border bg-surface border-[#222] text-[#aaa] space-y-1">
+              <p><strong class="text-xs font-mono text-brand">File:</strong> {{ selectedSong()?.original_filename }}</p>
               <p>
-                <strong>Duration:</strong> {{ formatDuration(selectedSong()?.duration || 0) }}
+                <strong class="text-xs font-mono text-brand">Duration:</strong> {{ formatDuration(selectedSong()?.duration || 0) }}
               </p>
-              <p><strong>Quality:</strong> {{ selectedSong()?.quality_mode }}</p>
-              <p><strong>Uploaded:</strong> {{ selectedSong()?.created_at | date: 'medium' }}</p>
+              <p><strong class="text-xs font-mono text-brand">Quality:</strong> {{ selectedSong()?.quality_mode }}</p>
+              <p><strong class="text-xs font-mono text-brand">Uploaded:</strong> {{ selectedSong()?.created_at | date: 'medium' }}</p>
             </div>
 
-            <div class="actions">
-              <button (click)="closeInfoModal()" class="btn-secondary">CANCEL</button>
-              <button (click)="saveMetadata()" class="btn-primary">SAVE CHANGES</button>
+            <div class="flex justify-end gap-4 mt-8">
+              <button (click)="closeInfoModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+              <button (click)="saveMetadata()" class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover">SAVE CHANGES</button>
             </div>
           </div>
         </div>
@@ -203,38 +206,40 @@
 
   <!-- Retry Modal -->
   @if (showRetryModal()) {
-    <div class="modal-overlay" (click)="closeRetryModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2 class="error-title">PROCESSING ERROR</h2>
-          <button (click)="closeRetryModal()" class="btn-close">&times;</button>
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closeRetryModal()">
+      <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="m-0 text-xl font-mono text-error">PROCESSING ERROR</h2>
+          <button (click)="closeRetryModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
         </div>
-        <div class="modal-body">
-          <div class="error-message">
+        <div>
+          <div class="mb-6 space-y-2">
             <p>
               A problem occurred while processing <strong>{{ selectedSong()?.name }}</strong>.
             </p>
-            <p class="error-hint">
+            <p class="text-sm text-gray-400">
               You can try processing it again, perhaps by selecting a different quality mode.
             </p>
           </div>
 
-          <div class="form-group">
-            <label>Change Quality Mode (Optional)</label>
-            <select [(ngModel)]="retryQualityMode" class="input-select">
+          <div class="mb-6">
+            <label class="block mb-2 text-sm text-[#888]">Change Quality Mode (Optional)</label>
+            <select [(ngModel)]="retryQualityMode" class="w-full p-3 text-white transition-colors border rounded bg-[#2a2a2a] border-border-main font-sans focus:outline-none focus:border-brand">
               <option value="fast">Fast (Spleeter)</option>
               <option value="studio">Studio (Demucs 4 stems)</option>
               <option value="studio_pro">Studio Pro (Demucs 6 stems)</option>
             </select>
           </div>
 
-          <div class="actions">
-            <button (click)="deleteSong(selectedSong()!.id)" class="btn-danger-outline">
+          <div class="flex items-center mt-8">
+            <button (click)="deleteSong(selectedSong()!.id)" class="px-4 py-2 text-xs font-mono transition-colors bg-transparent border cursor-pointer border-error text-error hover:bg-error/10">
               DELETE SONG
             </button>
-            <div class="spacer"></div>
-            <button (click)="closeRetryModal()" class="btn-secondary">CANCEL</button>
-            <button (click)="retryProcessing()" class="btn-primary">RETRY</button>
+            <div class="flex-1"></div>
+            <div class="flex gap-4">
+              <button (click)="closeRetryModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+              <button (click)="retryProcessing()" class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover">RETRY</button>
+            </div>
           </div>
         </div>
       </div>

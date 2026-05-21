@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [FormField, RouterLink, FormsModule],
   templateUrl: './verify.component.html',
-  styleUrl: './verify.component.scss',
 })
 export class VerifyComponent implements OnInit {
   private authService = inject(AuthService);

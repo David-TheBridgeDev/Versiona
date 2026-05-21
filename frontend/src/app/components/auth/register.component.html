@@ -1,22 +1,35 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Register</h2>
-    <p>Enter your email to start registration. We will send you a verification code.</p>
+<div class="flex items-center justify-center min-h-[80vh]">
+  <div class="w-full max-w-md p-8 border rounded-lg shadow-xl bg-card border-border-main">
+    <h2 class="mb-4 text-2xl font-bold text-center text-brand">Register</h2>
+    <p class="mb-6 text-sm text-center text-gray-400">Enter your email to start registration. We will send you a verification code.</p>
     
     <form (submit)="onSubmit(); $event.preventDefault()">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" type="email" autocomplete="username" [formField]="registerForm.email" placeholder="you@email.com" />
+      <div class="mb-4">
+        <label for="email" class="block mb-2 text-sm text-[#ccc]">Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          [formField]="registerForm.email"
+          placeholder="you@email.com"
+          class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+        />
         @if (registerForm.email().touched() && registerForm.email().errors().length) {
-          <span class="error-text">{{ registerForm.email().errors()[0].message }}</span>
+          <span class="block mt-1 text-xs text-error">{{ registerForm.email().errors()[0].message }}</span>
         }
       </div>
 
       @if (error()) {
-        <div class="alert alert-danger">{{ error() }}</div>
+        <div class="p-3 mb-4 text-sm border rounded bg-error/10 text-error border-error">
+          {{ error() }}
+        </div>
       }
 
-      <button type="submit" [disabled]="registerForm().invalid() || loading()">
+      <button
+        type="submit"
+        [disabled]="registerForm().invalid() || loading()"
+        class="w-full p-3 mt-4 font-bold transition-colors rounded bg-brand text-dark hover:bg-brand-hover disabled:bg-gray-600 disabled:cursor-not-allowed"
+      >
         @if (loading()) {
           Sending...
         } @else {
@@ -24,8 +37,8 @@
         }
       </button>
 
-      <div class="auth-footer">
-        Already have an account? <a routerLink="/auth/login">Login</a>
+      <div class="mt-6 text-sm text-center text-gray-500">
+        Already have an account? <a routerLink="/auth/login" class="text-brand hover:underline">Login</a>
       </div>
     </form>
   </div>

@@ -1,124 +1,166 @@
-<div class="profile-container">
-  <div class="profile-card">
-    <div class="profile-header">
-      <a routerLink="/" class="back-link">← Back</a>
-      <h2>My Profile</h2>
+<div class="flex items-center justify-center p-8 min-h-[80vh]">
+  <div class="w-full max-w-[500px] p-8 border rounded-lg shadow-xl bg-card border-border-main">
+    <div class="relative flex flex-col items-center mb-8">
+      <a routerLink="/" class="absolute left-0 text-sm transition-colors -translate-y-1/2 top-1/2 text-brand hover:underline">← Back</a>
+      <h2 class="m-0 text-2xl font-bold text-brand">My Profile</h2>
     </div>
 
     @if (error()) {
-      <div class="alert alert-danger">{{ error() }}</div>
+      <div class="p-3 mb-6 text-sm border rounded bg-error/10 text-error border-error">
+        {{ error() }}
+      </div>
     }
     @if (success()) {
-      <div class="alert alert-success">{{ success() }}</div>
+      <div class="p-3 mb-6 text-sm border rounded bg-success/10 text-success border-success">
+        {{ success() }}
+      </div>
     }
 
     <form (submit)="onSubmit(); $event.preventDefault()">
-      <div class="user-details-readonly">
-        <div class="detail-item">
-          <span class="label">Status:</span>
-          <span class="value" [class.verified]="currentUser()?.is_verified">
+      <div class="p-4 mb-6 border rounded bg-surface border-border-main">
+        <div class="flex justify-between mb-2 text-sm">
+          <span class="text-gray-500">Status:</span>
+          <span class="font-mono text-gray-200" [class.text-success]="currentUser()?.is_verified">
             {{ currentUser()?.is_verified ? 'Verified' : 'Pending verification' }}
           </span>
         </div>
-        <div class="detail-item">
-          <span class="label">Member since:</span>
-          <span class="value">{{ currentUser()?.created_at | date: 'longDate' }}</span>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-500">Member since:</span>
+          <span class="font-mono text-gray-200">{{ currentUser()?.created_at | date: 'longDate' }}</span>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" type="email" [value]="model().email" disabled class="disabled-input" />
+      <div class="mb-6">
+        <label for="email" class="block mb-2 text-sm text-[#ccc]">Email</label>
+        <input id="email" type="email" [value]="model().email" disabled class="w-full p-3 transition-colors border rounded bg-surface border-border-main text-gray-500 cursor-not-allowed font-mono" />
       </div>
 
-      <div class="form-group">
-        <label for="full_name">Full Name</label>
-        <input id="full_name" type="text" [formField]="profileForm.full_name" placeholder="Your name" />
+      <div class="mb-6">
+        <label for="full_name" class="block mb-2 text-sm text-[#ccc]">Full Name</label>
+        <input
+          id="full_name"
+          type="text"
+          [formField]="profileForm.full_name"
+          placeholder="Your name"
+          class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+        />
         @if (profileForm.full_name().touched() && profileForm.full_name().errors().length) {
-          <span class="error-text">{{ profileForm.full_name().errors()[0].message }}</span>
+          <span class="block mt-1 text-xs text-error">{{ profileForm.full_name().errors()[0].message }}</span>
         }
       </div>
 
-      <div class="form-actions-row">
-        <button type="submit" [disabled]="profileForm().invalid()" class="btn-primary">
+      <div class="flex gap-4 mt-6">
+        <button
+          type="submit"
+          [disabled]="profileForm().invalid()"
+          class="w-full p-3 font-bold transition-colors rounded bg-brand text-dark hover:bg-brand-hover disabled:bg-gray-600 disabled:cursor-not-allowed"
+        >
           Save Changes
         </button>
-        <button type="button" (click)="openPasswordModal()" class="btn-outline">
+        <button
+          type="button"
+          (click)="openPasswordModal()"
+          class="w-full p-3 font-bold transition-colors bg-transparent border rounded text-brand border-brand hover:bg-brand/10"
+        >
           Change Password
         </button>
       </div>
-      </form>
+    </form>
 
-      <div class="actions">
-      <button class="btn-secondary" (click)="onLogout()">Logout</button>
+    <div class="flex flex-col gap-2 pt-6 mt-8 border-t border-border-main">
+      <button class="w-full p-3 font-bold transition-colors bg-gray-700 rounded text-white hover:bg-gray-600" (click)="onLogout()">Logout</button>
 
       @if (!showDeleteConfirm()) {
-        <button class="btn-danger" (click)="confirmDelete()">Delete Account</button>
+        <button class="w-full p-3 font-bold transition-colors bg-red-600 rounded text-white hover:bg-red-700" (click)="confirmDelete()">Delete Account</button>
       } @else {
-        <div class="delete-confirm">
-          <p>Are you sure? This action is irreversible.</p>
-          <div class="confirm-buttons">
-            <button class="btn-danger" (click)="onDeleteAccount()">Yes, delete</button>
-            <button class="btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <div class="p-4 mt-4 text-center border rounded bg-red-600/10 border-red-600">
+          <p class="mb-4 text-sm text-red-500 font-medium">Are you sure? This action is irreversible.</p>
+          <div class="flex gap-2">
+            <button class="w-full p-2 text-sm font-bold transition-colors bg-red-600 rounded text-white hover:bg-red-700" (click)="onDeleteAccount()">Yes, delete</button>
+            <button class="w-full p-2 text-sm font-bold transition-colors bg-gray-700 rounded text-white hover:bg-gray-600" (click)="cancelDelete()">Cancel</button>
           </div>
         </div>
       }
-      </div>
-      </div>
-      </div>
+    </div>
+  </div>
+</div>
 
-      <!-- Change Password Modal -->
-      @if (showPasswordModal()) {
-      <div class="modal-overlay" (click)="closePasswordModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Change Password</h2>
-        <button (click)="closePasswordModal()" class="btn-close">&times;</button>
+<!-- Change Password Modal -->
+@if (showPasswordModal()) {
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80" (click)="closePasswordModal()">
+    <div class="bg-card w-[500px] max-w-[90%] border-l-4 border-brand p-8 shadow-2xl" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="m-0 text-xl font-mono text-brand">Change Password</h2>
+        <button (click)="closePasswordModal()" class="text-3xl leading-none bg-transparent border-none cursor-pointer text-[#888] hover:text-white">&times;</button>
       </div>
-      <div class="modal-body">
+      <div>
         <form (submit)="onChangePassword(); $event.preventDefault()">
-          <div class="form-group">
-            <label for="current_password">Current Password</label>
-            <input id="current_password" type="password" [formField]="passwordForm.current_password" placeholder="••••••••" />
+          <div class="mb-4">
+            <label for="current_password" class="block mb-2 text-sm text-[#ccc]">Current Password</label>
+            <input
+              id="current_password"
+              type="password"
+              [formField]="passwordForm.current_password"
+              placeholder="••••••••"
+              class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+            />
             @if (passwordForm.current_password().touched() && passwordForm.current_password().errors().length) {
-              <span class="error-text">{{ passwordForm.current_password().errors()[0].message }}</span>
+              <span class="block mt-1 text-xs text-error">{{ passwordForm.current_password().errors()[0].message }}</span>
             }
           </div>
 
-          <div class="form-group">
-            <label for="new_password">New Password</label>
-            <input id="new_password" type="password" [formField]="passwordForm.new_password" placeholder="Minimum 8 characters" />
+          <div class="mb-4">
+            <label for="new_password" class="block mb-2 text-sm text-[#ccc]">New Password</label>
+            <input
+              id="new_password"
+              type="password"
+              [formField]="passwordForm.new_password"
+              placeholder="Minimum 8 characters"
+              class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+            />
             @if (passwordForm.new_password().touched() && passwordForm.new_password().errors().length) {
-              <span class="error-text">{{ passwordForm.new_password().errors()[0].message }}</span>
+              <span class="block mt-1 text-xs text-error">{{ passwordForm.new_password().errors()[0].message }}</span>
             }
             @if (passwordForm.new_password().touched() && !passwordIsDifferent()) {
-              <span class="error-text">The new password must be different from the current one</span>
+              <span class="block mt-1 text-xs text-error">The new password must be different from the current one</span>
             }
           </div>
 
-          <div class="form-group">
-            <label for="confirm_password">Confirm New Password</label>
-            <input id="confirm_password" type="password" [formField]="passwordForm.confirm_password" placeholder="••••••••" />
+          <div class="mb-4">
+            <label for="confirm_password" class="block mb-2 text-sm text-[#ccc]">Confirm New Password</label>
+            <input
+              id="confirm_password"
+              type="password"
+              [formField]="passwordForm.confirm_password"
+              placeholder="••••••••"
+              class="w-full p-3 transition-colors border rounded bg-dark border-border-light text-white font-mono focus:outline-none focus:border-brand"
+            />
             @if (passwordForm.confirm_password().touched() && passwordForm.confirm_password().errors().length) {
-              <span class="error-text">{{ passwordForm.confirm_password().errors()[0].message }}</span>
+              <span class="block mt-1 text-xs text-error">{{ passwordForm.confirm_password().errors()[0].message }}</span>
             }
             @if (passwordForm.confirm_password().touched() && !passwordsMatch()) {
-              <span class="error-text">Passwords do not match</span>
+              <span class="block mt-1 text-xs text-error">Passwords do not match</span>
             }
           </div>
 
           @if (modalError()) {
-            <div class="alert alert-danger">{{ modalError() }}</div>
+            <div class="p-3 mb-4 text-sm border rounded bg-error/10 text-error border-error">
+              {{ modalError() }}
+            </div>
           }
 
-          <div class="actions">
-            <button type="button" (click)="closePasswordModal()" class="btn-secondary">CANCEL</button>
-            <button type="submit" [disabled]="passwordForm().invalid() || !passwordsMatch() || !passwordIsDifferent()" class="btn-primary">
+          <div class="flex justify-end gap-4 mt-8">
+            <button type="button" (click)="closePasswordModal()" class="px-5 py-2 transition-colors bg-transparent border cursor-pointer border-border-main text-[#888] hover:bg-border-main hover:text-white">CANCEL</button>
+            <button
+              type="submit"
+              [disabled]="passwordForm().invalid() || !passwordsMatch() || !passwordIsDifferent()"
+              class="px-5 py-2 font-mono font-bold transition-colors cursor-pointer bg-brand text-dark hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               UPDATE PASSWORD
             </button>
           </div>
         </form>
       </div>
-      </div>
-      </div>
-      }
+    </div>
+  </div>
+}

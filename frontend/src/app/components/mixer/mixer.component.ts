@@ -42,7 +42,6 @@ interface StemTrack {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './mixer.component.html',
-  styleUrl: './mixer.component.scss',
 })
 export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('trackCanvas') canvasRefs!: QueryList<ElementRef<HTMLCanvasElement>>;
