@@ -521,6 +521,78 @@ export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
+  exportToPDF() {
+    const song = this.song();
+    if (!song || !song.chords_json) return;
+
+    import('jspdf').then((jsPDFModule) => {
+      const doc = new jsPDFModule.default();
+      const chords = song.chords_json;
+      
+      // Title
+      doc.setFontSize(22);
+      doc.setTextColor(239, 188, 33); // Brand color #efbc21
+      doc.text('VERSIONA - Chord Sheet', 20, 20);
+      
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 40);
+      doc.text(`${song.name}`, 20, 30);
+      
+      if (song.artist) {
+        doc.setFontSize(12);
+        doc.text(`Artist: ${song.artist}`, 20, 38);
+      }
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`BPM: ${song.bpm || '--'} | Key: ${song.key || '--'} ${song.scale || ''}`, 20, 45);
+      
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(239, 188, 33);
+      doc.line(20, 50, 190, 50);
+
+      // Chords header
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      
+      let x = 20;
+      let y = 60;
+      const margin = 20;
+      const colWidth = 40;
+      const rowHeight = 12;
+      
+      if (!chords) return;
+
+      chords.forEach((c) => {
+        // Time label
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.formatTime(c.timestamp), x, y);
+        
+        // Chord name
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(c.chord, x + 10, y);
+        
+        x += colWidth;
+        if (x > 180) {
+          x = margin;
+          y += rowHeight;
+        }
+        
+        if (y > 280) {
+          doc.addPage();
+          y = margin + 10;
+          x = margin;
+        }
+      });
+
+      doc.save(`${song.name.replace(/\s+/g, '_')}_Chords.pdf`);
+    });
+  }
+
   async togglePlay() {
     if (this.isPlaying()) {
       Tone.Transport.pause();
