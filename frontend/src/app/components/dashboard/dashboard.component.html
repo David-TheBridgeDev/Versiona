@@ -57,6 +57,15 @@
               <p class="mt-1 text-sm truncate text-brand" [title]="song.artist || 'Unknown artist'">
                 {{ song.artist || 'Unknown artist' }}
               </p>
+              <div class="flex items-center gap-2 mt-2">
+                @if (song.quality_mode === 'fast') {
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono border border-gray-500 text-gray-400 rounded uppercase">Fast</span>
+                } @else if (song.quality_mode === 'studio') {
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono border border-brand text-brand rounded uppercase">Studio</span>
+                } @else if (song.quality_mode === 'studio_pro') {
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono bg-brand text-dark font-bold rounded uppercase">Studio Pro</span>
+                }
+              </div>
             </div>
 
             <div class="relative" (click)="$event.stopPropagation()">

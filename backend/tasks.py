@@ -172,12 +172,12 @@ def process_audio(self, song_id: int, file_path: str):
 
         output_dir = Path(file_path).parent
         # Configure model based on mode
-        # fast -> mdx_extra_q (or similar light), studio -> hdemucs_mmi, studio_pro -> hdemucs_6stems
+        # fast -> mdx_extra (light), studio -> htdemucs (v4), studio_pro -> htdemucs_6s (6 stems)
         model = "htdemucs"
         if song.quality_mode == "studio_pro":
             model = "htdemucs_6s"
         elif song.quality_mode == "fast":
-            model = "mdx_extra_q"
+            model = "mdx_extra"
 
         # Run demucs via CLI for better stability in the worker
         # demucs -n <model> <file> -o <output_dir>

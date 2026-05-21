@@ -4,7 +4,7 @@ Versiona is a SaaS platform designed for musicians that enables track separation
 
 ## 🚀 Main Features
 
-- **Stem Separation:** Support for Fast (Spleeter), Studio (Demucs v4), and Studio Pro (6 stems) modes.
+- **Stem Separation:** Support for Fast (Demucs Light), Studio (Demucs v4), and Studio Pro (6 stems) modes.
 - **Pro Musical Analysis:** Beat-synced chord detection, Major/Minor distinction, and advanced global key estimation.
 - **Cyber-Technical Mixer:** Professional interface with per-track waveforms, real-time harmonic viewer, and keyboard shortcuts.
 - **PWA & Performance:** Full Progressive Web App support with intelligent audio caching and parallel track loading.
@@ -13,7 +13,7 @@ Versiona is a SaaS platform designed for musicians that enables track separation
 
 - **Frontend:** Angular 21, Tone.js, Tailwind CSS v4 (Custom @theme with brand #efbc21).
 - **Backend:** FastAPI (Python), SQLAlchemy, PostgreSQL.
-- **Processing:** Celery, Redis, Librosa, Demucs/Spleeter.
+- **Processing:** Celery, Redis, Librosa, Demucs (v3 & v4).
 - **PWA:** Angular Service Worker, Web Manifest.
 
 ## 📋 Prerequisites
