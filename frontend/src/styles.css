@@ -36,6 +36,10 @@
 }
 
 @layer base {
+  html, body, app-root, app-mixer {
+    @apply h-full block;
+  }
+
   body {
     @apply bg-dark text-[#e0e0e0] font-sans m-0 p-0;
   }
