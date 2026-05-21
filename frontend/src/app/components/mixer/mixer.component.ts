@@ -19,12 +19,9 @@ import { Song, SongService, Stem } from '../../services/song.service';
 
 const STEM_ORDER: Record<string, number> = {
   vocals: 1,
-  voz: 1,
   drums: 2,
-  bateria: 2,
   bass: 3,
   guitar: 4,
-  guitarra: 4,
   piano: 5,
 };
 
@@ -109,7 +106,7 @@ export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    // Evitar disparar si el usuario está en un input
+    // Avoid triggering if the user is in an input
     const target = event.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
 
@@ -117,7 +114,7 @@ export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
       event.preventDefault();
       if (this.isLoaded()) this.togglePlay();
     } else if (event.code === 'KeyM') {
-      // Shortcut para metrónomo (Alt+M para no interferir con Mute de pistas)
+      // Metronome shortcut (Alt+M to not interfere with track Mute)
       if (event.altKey) {
         event.preventDefault();
         this.toggleMetronome();
@@ -560,16 +557,16 @@ export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   percentToDb(percent: number): number {
     if (percent <= 0) return -100;
-    // Curva cuadrática (exponente 2): es menos sensible que la cúbica y más equilibrada.
-    // El 80% corresponde a 0dB (volumen original).
-    // El 100% da un boost de +3.8dB.
+    // Quadratic curve (exponent 2): less sensitive than cubic and more balanced.
+    // 80% corresponds to 0dB (original volume).
+    // 100% gives a boost of +3.8dB.
     const gain = Math.pow(percent / 80, 2);
     return 20 * Math.log10(gain);
   }
 
   dbToPercent(db: number): number {
     if (db <= -70) return 0;
-    // Inversa de la curva cuadrática: percent = 80 * sqrt(gain)
+    // Inverse of quadratic curve: percent = 80 * sqrt(gain)
     const gain = Math.pow(10, db / 20);
     const percent = 80 * Math.sqrt(gain);
     return Math.max(0, Math.min(100, percent));
@@ -631,13 +628,10 @@ export class MixerComponent implements OnInit, OnDestroy, AfterViewInit {
       case 'bass':
         return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 3v15.5a2.5 2.5 0 1 0 2 2.45V11h9v7.5a2.5 2.5 0 1 0 2 2.45V3H6z"/></svg>';
       case 'drums':
-      case 'bateria':
         return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M7 12h10M12 7v10"/></svg>';
       case 'vocals':
-      case 'voz':
         return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>';
       case 'guitar':
-      case 'guitarra':
         return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3L4 11v8l8 2 8-2v-8l-8-8zM7 12l5-5 5 5-5 5-5-5z"/></svg>';
       case 'piano':
         return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 15H5v-2h6v2zm0-4H5v-2h6v2zm0-4H5V8h6v2zm8 8h-6v-2h6v2zm0-4h-6v-2h6v2zm0-4h-6V8h6v2z"/></svg>';

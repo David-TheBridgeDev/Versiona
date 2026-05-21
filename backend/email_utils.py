@@ -13,18 +13,18 @@ def send_verification_email(email: str, code: str):
     msg = MIMEMultipart()
     msg['From'] = settings.EMAIL_FROM
     msg['To'] = email
-    msg['Subject'] = "Tu código de verificación de Versiona"
+    msg['Subject'] = "Your Versiona Verification Code"
 
     body = f"""
-    Hola,
+    Hello,
 
-    Gracias por registrarte en Versiona. Tu código de verificación es:
+    Thank you for registering with Versiona. Your verification code is:
 
     {code}
 
-    Este código expirará en 15 minutos.
+    This code will expire in 15 minutes.
 
-    Si no has solicitado este correo, puedes ignorarlo.
+    If you did not request this email, you can safely ignore it.
     """
     msg.attach(MIMEText(body, 'plain'))
 

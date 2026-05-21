@@ -1,10 +1,10 @@
-# Script para refrescar solamente el BACKEND (API + Worker)
+# Script to refresh ONLY the BACKEND (API + Worker)
 
-Write-Host "--- Reconstruyendo y reiniciando: API y WORKER ---" -ForegroundColor Magenta
+Write-Host "--- Rebuilding and restarting: API and WORKER ---" -ForegroundColor Magenta
 
-# Reiniciamos ambos porque comparten el código de la carpeta /backend
+# We restart both because they share the code from the /backend folder
 docker-compose up -d --build api worker
 
-Write-Host "`n--- Backend actualizado ---" -ForegroundColor Green
+Write-Host "`n--- Backend updated ---" -ForegroundColor Green
 Write-Host "API: http://localhost:8000"
 Write-Host "Swagger: http://localhost:8000/docs"

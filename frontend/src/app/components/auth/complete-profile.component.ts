@@ -26,10 +26,10 @@ export class CompleteProfileComponent implements OnInit {
   });
 
   profileForm = form(this.model, (s) => {
-    required(s.full_name, { message: 'El nombre es obligatorio' });
-    required(s.password, { message: 'La contraseña es obligatoria' });
-    minLength(s.password, 8, { message: 'Mínimo 8 caracteres' });
-    required(s.confirmPassword, { message: 'Repite la contraseña' });
+    required(s.full_name, { message: 'Name is required' });
+    required(s.password, { message: 'Password is required' });
+    minLength(s.password, 8, { message: 'Minimum 8 characters' });
+    required(s.confirmPassword, { message: 'Repeat the password' });
   });
 
   ngOnInit() {
@@ -45,7 +45,7 @@ export class CompleteProfileComponent implements OnInit {
   onSubmit() {
     submit(this.profileForm, async () => {
       if (this.model().password !== this.model().confirmPassword) {
-        this.error.set('Las contraseñas no coinciden');
+        this.error.set('Passwords do not match');
         return;
       }
 
@@ -64,7 +64,7 @@ export class CompleteProfileComponent implements OnInit {
             this.router.navigate(['/auth/login']);
           },
           error: (err) => {
-            this.error.set(err.error?.detail || 'Error al completar el perfil');
+            this.error.set(err.error?.detail || 'Error completing profile');
             this.loading.set(false);
           },
         });

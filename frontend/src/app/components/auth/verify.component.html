@@ -1,7 +1,7 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2>Verifica tu cuenta</h2>
-    <p>Hemos enviado un código de 6 dígitos a <strong>{{ email() }}</strong>. Introduce el código a continuación para verificar tu cuenta.</p>
+    <h2>Verify your account</h2>
+    <p>We have sent a 6-digit code to <strong>{{ email() }}</strong>. Enter the code below to verify your account.</p>
 
     @if (error()) {
       <div class="alert alert-danger">
@@ -17,7 +17,7 @@
 
     <form (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="code">Código de verificación</label>
+        <label for="code">Verification code</label>
         <input 
           type="text" 
           id="code" 
@@ -32,19 +32,19 @@
 
       <button type="submit" [disabled]="verifyForm().invalid() || loading()">
         @if (loading()) {
-          Verificando...
+          Verifying...
         } @else {
-          Verificar código
+          Verify code
         }
       </button>
 
       <button type="button" class="btn-link" (click)="resendCode()" [disabled]="loading()">
-        No he recibido el código, reenviar
+        I haven't received the code, resend
       </button>
     </form>
 
     <div class="auth-footer">
-      ¿Ya tienes tu cuenta verificada? <a routerLink="/auth/login">Inicia sesión</a>
+      Already verified your account? <a routerLink="/auth/login">Login</a>
     </div>
   </div>
 </div>

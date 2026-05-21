@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.activeDropdown.set(null);
     });
 
-    // Iniciar polling para canciones en proceso
+    // Start polling for songs in process
     this.pollInterval = setInterval(() => {
       const hasProcessing = this.songs().some(
         (s) => s.status === 'processing' || s.status === 'pending',
@@ -122,7 +122,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteSong(songId: number) {
-    if (confirm('¿Estás seguro de que quieres eliminar esta canción por completo?')) {
+    if (confirm('Are you sure you want to delete this song completely?')) {
       this.songService.deleteSong(songId).subscribe(() => {
         this.loadSongs();
         this.activeDropdown.set(null);
@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isUploading.set(false);
-        alert('Error al subir la canción');
+        alert('Error uploading song');
       },
     });
   }

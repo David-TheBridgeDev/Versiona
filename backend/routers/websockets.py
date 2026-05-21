@@ -29,11 +29,11 @@ async def websocket_endpoint(websocket: WebSocket, song_id: int):
     await manager.connect(song_id, websocket)
     db = SessionLocal()
     try:
-        # Buscar la canción y su tarea asociada
+        # Find the song and its associated task
         song = db.query(models.Song).filter(models.Song.id == song_id).first()
         
         if song and song.celery_task_id and song.status == "processing":
-            # Iniciar monitoreo automático si la canción se está procesando
+            # Start automatic monitoring if the song is processing
             asyncio.create_task(monitor_task(song.celery_task_id, websocket))
         
         while True:
@@ -41,7 +41,7 @@ async def websocket_endpoint(websocket: WebSocket, song_id: int):
             if data == "ping":
                 await websocket.send_text("pong")
             
-            # Permitir seguimiento manual si se envía un task_id
+            # Allow manual tracking if a task_id is sent
             if data.startswith("track:"):
                 task_id = data.split(":")[1]
                 asyncio.create_task(monitor_task(task_id, websocket))

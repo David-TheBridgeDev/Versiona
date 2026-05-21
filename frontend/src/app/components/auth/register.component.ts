@@ -22,8 +22,8 @@ export class RegisterComponent {
   });
 
   registerForm = form(this.model, (s) => {
-    required(s.email, { message: 'El email es obligatorio' });
-    email(s.email, { message: 'Email inválido' });
+    required(s.email, { message: 'Email is required' });
+    email(s.email, { message: 'Invalid email' });
   });
 
   onSubmit() {
@@ -37,7 +37,7 @@ export class RegisterComponent {
           this.router.navigate(['/auth/verify-email'], { queryParams: { email: this.model().email } });
         },
         error: (err) => {
-          this.error.set(err.error?.detail || 'Error al solicitar verificación');
+          this.error.set(err.error?.detail || 'Error requesting verification');
           this.loading.set(false);
         }
       });

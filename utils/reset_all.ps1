@@ -1,23 +1,23 @@
-# Script para RESET TOTAL (Elimina base de datos, volúmenes y archivos subidos)
+# Script for TOTAL RESET (Deletes database, volumes, and uploaded files)
 
-$ConfirmSelection = Read-Host "ATENCIÓN: Esto borrará TODA la base de datos y los archivos subidos. ¿Estás seguro? (S/N)"
-if ($ConfirmSelection -ne "S") {
-    Write-Host "Operación cancelada." -ForegroundColor Yellow
+$ConfirmSelection = Read-Host "ATTENTION: This will delete the ENTIRE database and uploaded files. Are you sure? (Y/N)"
+if ($ConfirmSelection -ne "Y") {
+    Write-Host "Operation cancelled." -ForegroundColor Yellow
     exit
 }
 
-Write-Host "--- Deteniendo contenedores y eliminando VOLÚMENES (Base de Datos) ---" -ForegroundColor Red
+Write-Host "--- Stopping containers and removing VOLUMES (Database) ---" -ForegroundColor Red
 docker-compose down -v
 
-Write-Host "--- Limpiando archivos de audio subidos (/uploads) ---" -ForegroundColor Red
+Write-Host "--- Cleaning uploaded audio files (/uploads) ---" -ForegroundColor Red
 if (Test-Path "./uploads") {
     Get-ChildItem "./uploads" | Remove-Item -Recurse -Force
 }
 
-Write-Host "--- Reconstruyendo y levantando TODO el sistema desde cero ---" -ForegroundColor Cyan
+Write-Host "--- Rebuilding and starting the ENTIRE system from scratch ---" -ForegroundColor Cyan
 docker-compose up -d --build
 
-Write-Host "`n--- RESET COMPLETADO CON ÉXITO ---" -ForegroundColor Green
-Write-Host "Base de datos: Vacía y con esquemas recreados."
-Write-Host "Archivos: Directorio /uploads limpio."
+Write-Host "`n--- RESET COMPLETED SUCCESSFULLY ---" -ForegroundColor Green
+Write-Host "Database: Empty with recreated schemas."
+Write-Host "Files: /uploads directory cleaned."
 Write-Host "URL: http://localhost:4200"

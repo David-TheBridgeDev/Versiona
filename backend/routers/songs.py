@@ -34,7 +34,7 @@ def get_metadata(file_path):
         if audio:
             metadata["duration"] = int(audio.info.length)
             
-            # Intentar extraer etiquetas comunes
+            # Try to extract common tags
             if "tit2" in audio: metadata["title"] = str(audio["tit2"]) # MP3
             elif "title" in audio: metadata["title"] = str(audio["title"][0]) # FLAC/OGG
             
@@ -55,32 +55,32 @@ async def create_song(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_verified_user)
 ):
-    # Validar quality_mode
+    # Validate quality_mode
     if quality_mode not in ["fast", "studio", "studio_pro"]:
         raise HTTPException(status_code=400, detail="Invalid quality mode")
 
-    # Crear directorio para el usuario si no existe
+    # Create user directory if it doesn't exist
     user_dir = os.path.join(UPLOAD_DIR, str(current_user.id))
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
 
-    # Generar un ID único para la canción
+    # Generate a unique ID for the song
     song_id_str = str(uuid.uuid4())
     song_dir = os.path.join(user_dir, song_id_str)
     os.makedirs(song_dir)
 
-    # Guardar archivo original
+    # Save original file
     file_path = os.path.join(song_dir, file.filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Extraer metadatos
+    # Extract metadata
     meta = get_metadata(file_path)
     
-    # Si no se provee nombre, usar el título de los metadatos o el nombre del archivo
+    # If name is not provided, use title from metadata or filename
     final_name = name if name else meta["title"]
 
-    # Crear entrada en la base de datos
+    # Create database entry
     db_song = models.Song(
         name=final_name,
         artist=meta["artist"],
@@ -96,10 +96,10 @@ async def create_song(
     db.commit()
     db.refresh(db_song)
 
-    # Disparar tarea de procesamiento en segundo plano
+    # Trigger background processing task
     task = tasks.process_audio.delay(db_song.id, file_path)
     
-    # Guardar el ID de la tarea para seguimiento
+    # Save celery task ID for tracking
     db_song.celery_task_id = task.id
     db.commit()
     db.refresh(db_song)
@@ -164,14 +164,14 @@ async def delete_song(
     
     song_dir = db_song.storage_path
     
-    # Borrar stems de la DB
+    # Delete stems from DB
     db.query(models.Stem).filter(models.Stem.song_id == song_id).delete()
     
-    # Borrar canción de la DB
+    # Delete song from DB
     db.delete(db_song)
     db.commit()
     
-    # Borrar archivos si encontramos el directorio
+    # Delete files if directory exists
     if song_dir and os.path.exists(song_dir):
         shutil.rmtree(song_dir)
         
@@ -199,7 +199,7 @@ async def retry_song(
     db_song.status = "pending"
     db.commit()
     
-    # Obtener el path original usando storage_path
+    # Get original path using storage_path
     if not db_song.storage_path:
         raise HTTPException(status_code=400, detail="Storage path not set for this song")
 

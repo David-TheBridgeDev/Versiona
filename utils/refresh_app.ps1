@@ -1,12 +1,12 @@
-# Script para refrescar y levantar los servicios de Backend y Frontend
+# Script to refresh and start Backend and Frontend services
 
-Write-Host "--- Reconstruyendo y reiniciando servicios: API, Worker y Frontend ---" -ForegroundColor Yellow
+Write-Host "--- Rebuilding and restarting services: API, Worker and Frontend ---" -ForegroundColor Yellow
 
-# Reconstruir e iniciar los servicios específicos
-# Incluimos 'worker' porque comparte código con 'api'
+# Rebuild and start specific services
+# We include 'worker' because it shares code with 'api'
 docker-compose up -d --build api worker frontend
 
-Write-Host "`n--- Proceso completado con éxito ---" -ForegroundColor Green
+Write-Host "`n--- Process completed successfully ---" -ForegroundColor Green
 Write-Host "API: http://localhost:8000"
 Write-Host "Frontend: http://localhost:4200"
-Write-Host "Documentación: http://localhost:8000/docs"
+Write-Host "Documentation: http://localhost:8000/docs"

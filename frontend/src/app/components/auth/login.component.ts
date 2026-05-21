@@ -22,9 +22,9 @@ export class LoginComponent {
   });
 
   loginForm = form(this.model, (s) => {
-    required(s.email, { message: 'El email es obligatorio' });
-    email(s.email, { message: 'Email inválido' });
-    required(s.password, { message: 'La contraseña es obligatoria' });
+    required(s.email, { message: 'Email is required' });
+    email(s.email, { message: 'Invalid email' });
+    required(s.password, { message: 'Password is required' });
   });
 
   onSubmit() {
@@ -42,7 +42,7 @@ export class LoginComponent {
           if (err.status === 403) {
             this.router.navigate(['/auth/verify-email'], { queryParams: { email: this.model().email } });
           } else {
-            this.error.set('Email o contraseña incorrectos');
+            this.error.set('Incorrect email or password');
           }
         }
       });

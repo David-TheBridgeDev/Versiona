@@ -45,14 +45,14 @@ export class ProfileComponent {
   });
 
   profileForm = form(this.model, (s) => {
-    required(s.full_name, { message: 'El nombre es obligatorio' });
+    required(s.full_name, { message: 'Name is required' });
   });
 
   passwordForm = form(this.passwordModel, (s) => {
-    required(s.current_password, { message: 'Contraseña actual requerida' });
-    required(s.new_password, { message: 'Nueva contraseña requerida' });
-    minLength(s.new_password, 8, { message: 'Mínimo 8 caracteres' });
-    required(s.confirm_password, { message: 'Repite la nueva contraseña' });
+    required(s.current_password, { message: 'Current password required' });
+    required(s.new_password, { message: 'New password required' });
+    minLength(s.new_password, 8, { message: 'Minimum 8 characters' });
+    required(s.confirm_password, { message: 'Repeat the new password' });
   });
 
   constructor() {
@@ -77,10 +77,10 @@ export class ProfileComponent {
         full_name: this.model().full_name
       }).subscribe({
         next: () => {
-          this.success.set('Perfil actualizado correctamente');
+          this.success.set('Profile updated successfully');
         },
         error: (err) => {
-          this.error.set(err.error?.detail || 'Error al actualizar el perfil');
+          this.error.set(err.error?.detail || 'Error updating profile');
         }
       });
     });
@@ -104,12 +104,12 @@ export class ProfileComponent {
   onChangePassword() {
     submit(this.passwordForm, async () => {
       if (!this.passwordsMatch()) {
-        this.modalError.set('Las nuevas contraseñas no coinciden');
+        this.modalError.set('The new passwords do not match');
         return;
       }
 
       if (!this.passwordIsDifferent()) {
-        this.modalError.set('La nueva contraseña debe ser diferente a la actual');
+        this.modalError.set('The new password must be different from the current one');
         return;
       }
 
@@ -119,12 +119,12 @@ export class ProfileComponent {
         new_password: this.passwordModel().new_password
       }).subscribe({
         next: () => {
-          this.success.set('Contraseña cambiada correctamente');
+          this.success.set('Password changed successfully');
           this.closePasswordModal();
           this.error.set(''); // Clear any old profile errors
         },
         error: (err) => {
-          this.modalError.set(err.error?.detail || 'Error al cambiar la contraseña');
+          this.modalError.set(err.error?.detail || 'Error changing password');
         }
       });
     });
@@ -148,7 +148,7 @@ export class ProfileComponent {
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
-        this.error.set('Error al eliminar la cuenta');
+        this.error.set('Error deleting account');
       }
     });
   }

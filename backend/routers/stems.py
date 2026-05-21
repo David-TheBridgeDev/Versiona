@@ -14,7 +14,7 @@ async def get_stem_file(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # Buscar el stem y verificar propiedad a través de la canción
+    # Find the stem and verify ownership through the song
     stem = db.query(models.Stem).join(models.Song).filter(
         models.Stem.id == stem_id,
         models.Song.user_id == current_user.id

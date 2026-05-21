@@ -26,9 +26,9 @@ export class VerifyComponent implements OnInit {
   });
 
   verifyForm = form(this.model, (s) => {
-    required(s.code, { message: 'El código es obligatorio' });
-    minLength(s.code, 6, { message: 'El código debe tener 6 dígitos' });
-    maxLength(s.code, 6, { message: 'El código debe tener 6 dígitos' });
+    required(s.code, { message: 'Code is required' });
+    minLength(s.code, 6, { message: 'Code must be 6 digits' });
+    maxLength(s.code, 6, { message: 'Code must be 6 digits' });
   });
 
   ngOnInit() {
@@ -49,7 +49,7 @@ export class VerifyComponent implements OnInit {
 
       this.authService.verifyCode(this.email(), this.model().code).subscribe({
         next: () => {
-          this.success.set('¡Email verificado con éxito!');
+          this.success.set('Email successfully verified!');
           this.loading.set(false);
           setTimeout(() => {
             this.router.navigate(['/auth/complete-profile'], {
@@ -58,7 +58,7 @@ export class VerifyComponent implements OnInit {
           }, 1500);
         },
         error: (err) => {
-          this.error.set(err.error?.detail || 'Código de verificación incorrecto o expirado');
+          this.error.set(err.error?.detail || 'Incorrect or expired verification code');
           this.loading.set(false);
         },
       });
@@ -72,11 +72,11 @@ export class VerifyComponent implements OnInit {
 
     this.authService.resendCode(this.email()).subscribe({
       next: () => {
-        this.success.set('Código reenviado con éxito. Revisa tu bandeja de entrada.');
+        this.success.set('Code successfully resent. Check your inbox.');
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.detail || 'Error al reenviar el código');
+        this.error.set(err.error?.detail || 'Error resending code');
         this.loading.set(false);
       },
     });

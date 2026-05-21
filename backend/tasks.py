@@ -65,24 +65,24 @@ def process_audio(self, song_id: int, file_path: str):
         song.status = "processing"
         db.commit()
 
-        # --- FASE 1: Análisis de Metadatos ---
+        # --- PHASE 1: Metadata Analysis ---
         self.update_state(
             state="PROGRESS",
             meta={"progress": 10, "status": "Analyzing metadata (BPM, Key)..."},
         )
         y, sr = librosa.load(file_path)
 
-        # Extracción de BPM
+        # BPM Extraction
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
         song.bpm = int(tempo)
 
-        # Extracción de Tonalidad Mejorada
+        # Improved Key Extraction
         self.update_state(
             state="PROGRESS",
             meta={"progress": 12, "status": "Estimating global Key and Scale..."},
         )
 
-        # Generar waveform simplificada para el dashboard
+        # Generate simplified waveform for the dashboard
         S = np.abs(librosa.stft(y))
         rms = librosa.feature.rms(S=S)[0]
         resample_factor = max(1, len(rms) // 100)
@@ -112,27 +112,27 @@ def process_audio(self, song_id: int, file_path: str):
         song.key = best_key
         song.scale = best_scale
         db.commit()
-        # --- NUEVO: Extracción de Mapa de Acordes Mejorada (Beat-Sync) ---
+        # --- NEW: Improved Chord Map Extraction (Beat-Sync) ---
         self.update_state(
             state="PROGRESS",
             meta={"progress": 15, "status": "Extracting beat-sync chord map..."},
         )
 
-        # Extracción de Beats
+        # Beat Extraction
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
         beat_times = librosa.frames_to_time(beat_frames, sr=sr)
 
-        # Si no detecta beats suficientes, usar segmentos fijos como fallback
+        # If not enough beats are detected, use fixed segments as fallback
         if len(beat_frames) < 10:
             hop_length = 512
             segment_frames = int(0.5 * sr / hop_length)
             beat_frames = np.arange(0, chroma.shape[1], segment_frames)
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
 
-        # Agregar croma por beats para mayor precisión rítmica
+        # Aggregate chroma by beats for better rhythmic precision
         chroma_sync = librosa.util.sync(chroma, beat_frames, aggregate=np.median)
         
-        # Suavizar el croma a lo largo del tiempo para evitar fluctuaciones rápidas (ej. saltos de acordes incorrectos)
+        # Smooth chroma over time to avoid rapid fluctuations (e.g., incorrect chord jumps)
         chroma_sync = scipy.ndimage.median_filter(chroma_sync, size=(1, 9))
 
         chord_map = []
@@ -141,7 +141,7 @@ def process_audio(self, song_id: int, file_path: str):
         for i in range(chroma_sync.shape[1]):
             mean_chroma = chroma_sync[:, i]
 
-            # Normalizar croma
+            # Normalize chroma
             if mean_chroma.max() > 0:
                 mean_chroma /= mean_chroma.max()
 
@@ -150,7 +150,7 @@ def process_audio(self, song_id: int, file_path: str):
             best_idx = np.argmax(scores)
             best_chord = CHORD_NAMES[best_idx] if scores[best_idx] > 0 else "N.C."
 
-            # Solo añadir si el acorde cambia
+            # Only add if the chord changes
             if best_chord != last_chord:
                 timestamp = beat_times[i] if i < len(beat_times) else (i * 0.5)
                 chord_map.append(
@@ -161,7 +161,7 @@ def process_audio(self, song_id: int, file_path: str):
         song.chords_json = chord_map
         db.commit()
 
-        # --- FASE 2: Separación de Stems ---
+        # --- PHASE 2: Stem Separation ---
         self.update_state(
             state="PROGRESS",
             meta={
@@ -171,15 +171,15 @@ def process_audio(self, song_id: int, file_path: str):
         )
 
         output_dir = Path(file_path).parent
-        # Configurar modelo según modo
-        # fast -> mdx_extra_q (o similar ligero), studio -> hdemucs_mmi, studio_pro -> hdemucs_6stems
+        # Configure model based on mode
+        # fast -> mdx_extra_q (or similar light), studio -> hdemucs_mmi, studio_pro -> hdemucs_6stems
         model = "htdemucs"
         if song.quality_mode == "studio_pro":
             model = "htdemucs_6s"
         elif song.quality_mode == "fast":
             model = "mdx_extra_q"
 
-        # Ejecutar demucs vía CLI para mayor estabilidad en el worker
+        # Run demucs via CLI for better stability in the worker
         # demucs -n <model> <file> -o <output_dir>
         cmd = ["demucs", "-n", model, str(file_path), "-o", str(output_dir / "stems")]
 
@@ -201,20 +201,20 @@ def process_audio(self, song_id: int, file_path: str):
                 f"Demucs failed with exit code {process.returncode}. Error: {stderr}"
             )
 
-        # --- FASE 3: Registrar Stems ---
+        # --- PHASE 3: Register Stems ---
         self.update_state(
             state="PROGRESS",
             meta={"progress": 90, "status": "Finalizing and registering stems..."},
         )
 
-        # Demucs guarda en: <output_dir>/stems/<model>/<filename_without_ext>/<stem>.wav
+        # Demucs saves in: <output_dir>/stems/<model>/<filename_without_ext>/<stem>.wav
         filename_stem = Path(file_path).stem
         stems_path = output_dir / "stems" / model / filename_stem
 
         for stem_file in stems_path.glob("*.wav"):
             stem_type = stem_file.stem  # vocals, drums, bass, etc.
 
-            # Mover a la carpeta de la canción para limpieza
+            # Move to song folder for cleanup
             final_path = output_dir / f"{stem_type}.wav"
             shutil.move(str(stem_file), str(final_path))
 
